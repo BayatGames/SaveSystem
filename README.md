@@ -34,4 +34,4 @@ Launch the project using the Unity 2018.4 and start contributing!
 
 ## License
 
-The package follows [Unity Asset Store terms and EULA](https://unity3d.com/legal/as_terms)
+[Unity Asset Store terms and EULA](https://unity3d.com/legal/as_terms)
