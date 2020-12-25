@@ -1,6 +1,6 @@
-# Save System
+# Save System for Unity
 
-The source code of Bayat - Save System for Unity engine.
+The source code of the Save System for Unity engine.
 
 > This is a paid package for Unity game engine delivered on Unity Asset Store and available here for contributions from the community and a source of education.
 
