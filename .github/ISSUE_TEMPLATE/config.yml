@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Bayat Forums
+    url: https://forums.bayat.io
+    about: Please ask and answer questions here.
+  - name: Discussions
+    url: https://github.com/BayatAssetStore/save-system-unity/discussions
+    about: Use discussions bouard to talk with community and exchange information.
