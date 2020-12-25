@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Bayat.Json.Serialization;
+using UnityEngine;
+
+namespace Bayat.Json.Converters
+{{
+
+    public class {0} : ObjectJsonConverter
+    {{
+
+        public override string[] GetObjectProperties()
+        {{
+            return new string[] {{ {4} }};
+        }}
+
+        public override bool CanConvert(Type objectType)
+        {{
+            return objectType == typeof({1});
+        }}
+
+        public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
+		{{
+			var instance = ({1})value;
+{2}
+		}}
+
+		public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)
+		{{
+			var instance = ({1})targetObject;
+			switch (memberName)
+			{{
+{3}
+				default:
+					reader.Skip();
+					break;
+			}}
+			return instance;
+        }}
+
+    }}
+
+}}

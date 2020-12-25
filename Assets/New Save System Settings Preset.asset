@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4be4c8afb68ef3e449df62bbbb1c51aa, type: 3}
+  m_Name: New Save System Settings Preset
+  m_EditorClassIdentifier: 
+  storageConnectionString: disk://path={0}
+  useMetaData: 1
+  useCatalog: 1
+  useEncryption: 0
+  password: 
+  ecryptionAlgorithmName: aes
+  serializerSettingsPreset: {fileID: 11400000, guid: e5a95b54263d53f4a937ad6fe8fa11e2,
+    type: 2}

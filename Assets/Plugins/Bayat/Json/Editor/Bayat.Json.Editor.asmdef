@@ -1,0 +1,14 @@
+{
+    "name": "Bayat.Json.Editor",
+    "references": [
+        "Bayat.Json.Runtime",
+        "Bayat.Core.Editor",
+        "Bayat.Core.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

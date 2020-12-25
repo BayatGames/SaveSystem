@@ -1,0 +1,11 @@
+{
+    "name": "Bayat.SaveSystem.Runtime",
+    "references": [
+        "Bayat.Json.Runtime",
+        "Bayat.Core.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

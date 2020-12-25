@@ -1,0 +1,10 @@
+{
+    "name": "Bayat.Json.Runtime",
+    "references": [
+        "Bayat.Core.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

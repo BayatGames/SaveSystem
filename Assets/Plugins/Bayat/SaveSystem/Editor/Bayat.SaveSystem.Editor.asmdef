@@ -1,0 +1,16 @@
+{
+    "name": "Bayat.SaveSystem.Editor",
+    "references": [
+        "Bayat.SaveSystem.Runtime",
+        "Bayat.Core.Editor",
+        "Bayat.Core.Runtime",
+        "Bayat.Json.Editor",
+        "Bayat.Json.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
