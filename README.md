@@ -28,6 +28,8 @@ Clone the project:
 git clone https://github.com/BayatAssetStore/save-system-unity.git
 ```
 
+Or download the [latest release source](https://github.com/BayatAssetStore/save-system-unity/releases/latest) or [download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
+
 ### Contribution
 
 Launch the project using the Unity 2018.4 and start contributing!
