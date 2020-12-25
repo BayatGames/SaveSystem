@@ -4,7 +4,7 @@ The source code of Bayat - Save System for Unity engine.
 
 > This is a paid package for Unity game engine delivered on Unity Asset Store and available here for contributions from the community and a source of education.
 
-## Learn More
+## Resources
 
 - [Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
 - [Manual](https://docs.bayat.io/save-system/manual/)
