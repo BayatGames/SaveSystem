@@ -1,29 +1,39 @@
-# README #
+# Save System
 
-This README would normally document whatever steps are necessary to get your application up and running.
+The source code of Bayat - Save System for Unity engine.
 
-### What is this repository for? ###
+> This is a paid package for Unity game engine delivered on Unity Asset Store and available here for contributions from the community and a source of education.
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+## Resources
 
-### How do I get set up? ###
+- [Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
+- [Manual](https://docs.bayat.io/save-system/manual/)
+- [API](https://docs.bayat.io/save-system/api/)
+- [Integrations](https://docs.bayat.io/save-system/manual/integrations/)
+- [Official Forum](https://forums.bayat.io/forums/forum/unity-assets/save-system/)
+- [Unity Forum Thread](https://forum.unity.com/threads/bayat-save-system-an-ultimate-data-management-solution.817416/)
+- [Discord](https://discord.com/invite/HWMqD7T)
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## Getting Started
 
-### Contribution guidelines ###
+### Prerequisites
 
-* Writing tests
-* Code review
-* Other guidelines
+- Unity 2018.4
 
-### Who do I talk to? ###
+### Download
 
-* Repo owner or admin
-* Other community or team contact
+Clone the project:
+
+```bash
+git clone https://github.com/BayatAssetStore/save-system-unity.git
+```
+
+Or download the [latest release source](https://github.com/BayatAssetStore/save-system-unity/releases/latest) or [download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
+
+### Contribution
+
+Launch the project using the Unity 2018.4 and start contributing!
+
+## License
+
+[Unity Asset Store Terms and EULA](https://unity3d.com/legal/as_terms)
