@@ -28,7 +28,7 @@ The source code of the Save System for Unity engine.
 git clone https://github.com/BayatAssetStore/save-system-unity.git
 ```
 
-- [Download the latest release source](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
+- [Download the latest release](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
 - [Download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
 
 ### Contribute
