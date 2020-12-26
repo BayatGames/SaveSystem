@@ -1,4 +1,4 @@
-# Save System for Unity
+# Save System
 
 The source code of the Save System for Unity engine.
 
@@ -22,15 +22,16 @@ The source code of the Save System for Unity engine.
 
 ### Download
 
-Clone the project:
+- Clone the project:
 
 ```bash
 git clone https://github.com/BayatAssetStore/save-system-unity.git
 ```
 
-Or download the [latest release source](https://github.com/BayatAssetStore/save-system-unity/releases/latest) or [download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
+- [Download the latest release source](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
+- [Download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
 
-### Contribution
+### Contribute
 
 Launch the project using the Unity 2018.4 and start contributing!
 
