@@ -25,7 +25,7 @@ The source code of the Save System for Unity engine.
 - Clone the project:
 
 ```bash
-git clone https://github.com/BayatAssetStore/save-system-unity.git
+git clone https://github.com/BayatAssetStore/SaveSystem.git
 ```
 
 - [Download the latest release](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
