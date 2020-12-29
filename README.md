@@ -33,6 +33,8 @@ git clone https://github.com/BayatAssetStore/SaveSystem.git
 
 ### Contribute
 
+> We’re excited that you’re interested in contributing! Take a moment to read [`CONTRIBUTING.md`](contribute).
+
 Launch the project using the Unity 2018.4 and start contributing!
 
 ## License
@@ -48,3 +50,5 @@ Made with ❤️ by [Bayat][author]
 [license]: https://unity3d.com/legal/as_terms
 
 [author]: https://bayat.io
+
+[contribute]: https://github.com/BayatAssetStore/.github/blob/main/CONTRIBUTING.md
