@@ -31,6 +31,12 @@ git clone https://github.com/BayatAssetStore/SaveSystem.git
 - [Download the latest release](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
 - [Download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
 
+### Build documentation
+
+```
+docfx docs/docfx.json
+```
+
 ### Contribute
 
 > We’re excited that you’re interested in contributing! Take a moment to read [`CONTRIBUTING.md`](contribute).
