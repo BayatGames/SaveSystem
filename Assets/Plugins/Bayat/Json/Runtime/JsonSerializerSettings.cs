@@ -32,6 +32,8 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 
+using Bayat.Json.Converters;
+
 namespace Bayat.Json
 {
     /// <summary>
