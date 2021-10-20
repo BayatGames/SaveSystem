@@ -34,10 +34,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Security;
+
 using Bayat.Json.Linq;
 using Bayat.Json.Utilities;
+
 using System.Runtime.Serialization;
+
 using Bayat.Json.Shims;
+
 #if NET20
 using Bayat.Json.Utilities.LinqBridge;
 #else
@@ -281,6 +285,11 @@ namespace Bayat.Json.Serialization
                 return false;
             }
 
+            if (Serializer.ReferenceResolver.IsReferenced(this, value))
+            {
+                return true;
+            }
+
             Type objectType = value.GetType();
 
             // ScriptableObjects data should be serialized too
@@ -297,7 +306,7 @@ namespace Bayat.Json.Serialization
                 }
             }
 
-            return Serializer.ReferenceResolver.IsReferenced(this, value);
+            return false;
         }
 
         private bool ShouldWriteProperty(object memberValue, JsonProperty property)
