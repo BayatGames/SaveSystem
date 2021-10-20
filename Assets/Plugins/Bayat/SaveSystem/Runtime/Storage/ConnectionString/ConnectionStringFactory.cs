@@ -67,6 +67,11 @@ namespace Bayat.SaveSystem.Storage
         {
             if (factory == null) throw new ArgumentNullException(nameof(factory));
 
+            if (Factories.Contains(factory))
+            {
+                return;
+            }
+
             Factories.Add(factory);
         }
 

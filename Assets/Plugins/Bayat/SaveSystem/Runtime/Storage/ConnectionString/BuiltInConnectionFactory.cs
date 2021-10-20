@@ -9,6 +9,12 @@ namespace Bayat.SaveSystem.Storage
     public class BuiltInConnectionFactory : IConnectionFactory
     {
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Register()
+        {
+            ConnectionStringFactory.Register(new BuiltInConnectionFactory());
+        }
+
         public IStorage CreateStorage(StorageConnectionString connectionString)
         {
             if (connectionString.Prefix == "disk")
