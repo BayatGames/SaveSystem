@@ -285,15 +285,10 @@ namespace Bayat.Json.Serialization
                 return false;
             }
 
-            if (Serializer.ReferenceResolver.IsReferenced(this, value))
-            {
-                return true;
-            }
-
             Type objectType = value.GetType();
 
             // ScriptableObjects data should be serialized too
-            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType) && !typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType))
+            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType) && (typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType) && !Serializer.SerializeScriptableObjects))
             {
                 UnityEngine.Object unityObject = (UnityEngine.Object)value;
                 if (AssetReferenceResolver.Current != null)
@@ -304,6 +299,11 @@ namespace Bayat.Json.Serialization
                         return true;
                     }
                 }
+            }
+
+            if (Serializer.ReferenceResolver.IsReferenced(this, value))
+            {
+                return true;
             }
 
             return false;

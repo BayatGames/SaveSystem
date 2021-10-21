@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc001bbba3a790e4086c8620fd6a75b7, type: 3}
   m_Name: New Test Scriptable Object
   m_EditorClassIdentifier: 
-  stringField: this is a string
+  stringField: Hello World!
   intField: 123

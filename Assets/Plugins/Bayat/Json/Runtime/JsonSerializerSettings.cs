@@ -23,8 +23,6 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using Bayat.Json.Serialization;
-using Bayat.Json.Shims;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -33,6 +31,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 
 using Bayat.Json.Converters;
+using Bayat.Json.Serialization;
+using Bayat.Json.Shims;
 
 namespace Bayat.Json
 {
@@ -64,6 +64,7 @@ namespace Bayat.Json
         public const FormatterAssemblyStyle DefaultFormatterAssemblyStyle = FormatterAssemblyStyle.Simple;
         public static readonly CultureInfo DefaultCulture;
         public const bool DefaultCheckAdditionalContent = false;
+        public const bool DefaultSerializeScriptableObjects = false;
         public const string DefaultDateFormatString = @"yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFFFFFFK";
 
         protected internal Formatting? _formatting;
@@ -75,6 +76,7 @@ namespace Bayat.Json
         protected internal StringEscapeHandling? _stringEscapeHandling;
         protected internal CultureInfo _culture;
         protected internal bool? _checkAdditionalContent;
+        protected internal bool? _serializeScriptableObjects;
         protected internal int? _maxDepth;
         protected internal bool _maxDepthSet;
         protected internal string _dateFormatString;
@@ -388,6 +390,15 @@ namespace Bayat.Json
         {
             get { return _checkAdditionalContent ?? DefaultCheckAdditionalContent; }
             set { _checkAdditionalContent = value; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether to serialize ScriptableObjects data or not.
+        /// </summary>
+        public bool SerializeScriptableObjects
+        {
+            get { return _serializeScriptableObjects ?? DefaultSerializeScriptableObjects; }
+            set { _serializeScriptableObjects = value; }
         }
 
         static JsonSerializerSettings()

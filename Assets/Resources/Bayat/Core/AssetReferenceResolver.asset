@@ -23,6 +23,7 @@ MonoBehaviour:
     - 6f1839b955254defa5e99ac2413ff41a
     - c8d7d1b1b5e24a6a8913ee0cbbbf8428
     - 547b4c9ae0994253bb2071dc87a669eb
+    - 93c3bfc30ed84e12ab2e7fa7f087d719
     _Values:
     - {fileID: 2800000, guid: 07f02695cdd66174ab653e8cf1329d7f, type: 3}
     - {fileID: 2800000, guid: 0ab622086c3f0214899831ccbaedd3b1, type: 3}
@@ -31,5 +32,6 @@ MonoBehaviour:
     - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
     - {fileID: 10904, guid: 0000000000000000f000000000000000, type: 0}
     - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+    - {fileID: 11400000, guid: 9ed301a896019d147b5d2bc28a0658dd, type: 2}
   mode: 1
   refreshDependenciesTimeoutInSeconds: 2

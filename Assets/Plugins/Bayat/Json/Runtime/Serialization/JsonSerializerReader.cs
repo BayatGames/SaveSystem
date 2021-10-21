@@ -35,9 +35,11 @@ using System.Globalization;
 using System.Numerics;
 #endif
 using System.Runtime.Serialization;
+
 using Bayat.Json.Linq;
 using Bayat.Json.Shims;
 using Bayat.Json.Utilities;
+
 #if NET20
 using Bayat.Json.Utilities.LinqBridge;
 #else

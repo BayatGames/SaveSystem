@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.Runtime.Serialization.Formatters;
+
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -44,6 +46,8 @@ namespace Bayat.Json
 
         [SerializeField]
         protected bool checkAdditionalContent = JsonSerializerSettings.DefaultCheckAdditionalContent;
+        [SerializeField]
+        protected bool serializeScriptableObjects = JsonSerializerSettings.DefaultSerializeScriptableObjects;
         [SerializeField]
         protected ConstructorHandling constructorHandling = JsonSerializerSettings.DefaultConstructorHandling;
         [SerializeField]
@@ -124,6 +128,7 @@ namespace Bayat.Json
         public virtual void ApplyTo(JsonSerializerSettings settings)
         {
             settings.CheckAdditionalContent = this.checkAdditionalContent;
+            settings.SerializeScriptableObjects = this.serializeScriptableObjects;
             settings.ConstructorHandling = this.constructorHandling;
             settings.DateFormatHandling = this.dateFormatHandling;
             settings.DateFormatString = this.dateFormatString;

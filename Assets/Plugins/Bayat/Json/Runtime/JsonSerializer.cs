@@ -23,11 +23,6 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 #endregion
 
-using Bayat.Core.Reflection;
-using Bayat.Json.Converters;
-using Bayat.Json.Serialization;
-using Bayat.Json.Shims;
-using Bayat.Json.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,6 +31,13 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
+
+using Bayat.Core.Reflection;
+using Bayat.Json.Converters;
+using Bayat.Json.Serialization;
+using Bayat.Json.Shims;
+using Bayat.Json.Utilities;
+
 using ErrorEventArgs = Bayat.Json.Serialization.ErrorEventArgs;
 
 namespace Bayat.Json
@@ -79,6 +81,7 @@ namespace Bayat.Json
         protected int? _maxDepth;
         protected bool _maxDepthSet;
         protected bool? _checkAdditionalContent;
+        protected bool? _serializeScriptableObjects;
         protected string _dateFormatString;
         protected bool _dateFormatStringSet;
 
@@ -474,6 +477,15 @@ namespace Bayat.Json
             set { _checkAdditionalContent = value; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether to serialize ScriptableObjects data or not.
+        /// </summary>
+        public virtual bool SerializeScriptableObjects
+        {
+            get { return _serializeScriptableObjects ?? JsonSerializerSettings.DefaultSerializeScriptableObjects; }
+            set { _serializeScriptableObjects = value; }
+        }
+
         public bool IsCheckAdditionalContentSet()
         {
             return (_checkAdditionalContent != null);
@@ -644,6 +656,10 @@ namespace Bayat.Json
             if (settings._checkAdditionalContent != null)
             {
                 serializer._checkAdditionalContent = settings._checkAdditionalContent;
+            }
+            if (settings._serializeScriptableObjects != null)
+            {
+                serializer._serializeScriptableObjects = settings._serializeScriptableObjects;
             }
 
             if (settings.Error != null)

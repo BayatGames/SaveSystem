@@ -1,11 +1,23 @@
-﻿using Bayat.SaveSystem;
+﻿using Bayat.Json;
+using Bayat.SaveSystem;
 
 using UnityEngine;
 
 public class Test : MonoBehaviour
 {
 
-    public TestScriptableObject go;
+    [JsonIgnore]
+    public TestScriptableObject test;
+    [JsonProperty]
+    protected TestContainer[] containers;
+
+    protected virtual void Awake()
+    {
+        this.containers = new TestContainer[] {
+            new TestContainer(this.test),
+            new TestContainer(this.test)
+        };
+    }
 
     //public void Destroy()
     //{
@@ -14,12 +26,12 @@ public class Test : MonoBehaviour
 
     public async void Load()
     {
-        go = await SaveSystemAPI.LoadAsync<TestScriptableObject>("go.dat");
+        containers = await SaveSystemAPI.LoadAsync<TestContainer[]>("go.dat");
     }
 
     public async void Save()
     {
-        await SaveSystemAPI.SaveAsync("go.dat", go);
+        await SaveSystemAPI.SaveAsync("go.dat", containers);
     }
 
     //public void CreateDummyObject()
@@ -34,5 +46,18 @@ public class Test : MonoBehaviour
     //    parent.AddComponent<ReadonlyTest>();
     //    go = parent;
     //}
+
+}
+
+public class TestContainer
+{
+
+    [JsonProperty]
+    protected TestScriptableObject testScriptable;
+
+    public TestContainer(TestScriptableObject testScriptable)
+    {
+        this.testScriptable = testScriptable;
+    }
 
 }
