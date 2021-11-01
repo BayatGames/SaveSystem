@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
 using Bayat.Core.Utilities;
+
+using UnityObject = UnityEngine.Object;
 
 namespace Bayat.Core
 {
@@ -20,6 +24,8 @@ namespace Bayat.Core
     [DisallowMultipleComponent]
     public class SceneReferenceResolver : MonoBehaviour, ISerializationCallbackReceiver
     {
+
+        protected static Dictionary<Scene, SceneReferenceResolver> referenceResolvers = new Dictionary<Scene, SceneReferenceResolver>();
 
         private static SceneReferenceResolver current;
 
@@ -52,6 +58,22 @@ namespace Bayat.Core
             }
         }
 
+        /// <summary>
+        /// A dictionary of all the available Scene Reference Resolvers based on the Scene they are managing.
+        /// </summary>
+        /// <remarks>
+        /// Use <see cref="GetReferenceResolver(Scene)"/> to get the appropriate reference resolver for a scene, it works on both Editor and Play mode but this property does not.
+        /// </remarks>
+        public static Dictionary<Scene, SceneReferenceResolver> ReferenceResolvers
+        {
+            get
+            {
+                return referenceResolvers;
+            }
+        }
+
+        [SerializeField]
+        protected string[] invalidGameObjectTags = new string[] { "EditorOnly" };
         [HideInInspector]
         [SerializeField]
         protected List<string> guids = new List<string>();
@@ -193,6 +215,21 @@ namespace Bayat.Core
         }
 #endif
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        protected virtual void OnEnable()
+        {
+            if (referenceResolvers.ContainsValue(this))
+            {
+                return;
+            }
+            referenceResolvers.Add(this.gameObject.scene, this);
+        }
+
+        protected virtual void OnDisable()
+        {
+            referenceResolvers.Remove(this.gameObject.scene);
+        }
+
         public virtual void OnBeforeSerialize()
         {
 
@@ -290,7 +327,7 @@ namespace Bayat.Core
                         continue;
                     }
 
-                    if (dependency == null || !CanBeSaved(dependency) || AssetReferenceResolver.Current.Contains(dependency) || Contains(dependency))
+                    if (dependency == null || !IsValidUnityObject(dependency) || AssetReferenceResolver.Current.Contains(dependency) || Contains(dependency))
                     {
                         continue;
                     }
@@ -539,6 +576,74 @@ namespace Bayat.Core
             }
             return true;
         }
+
+        /// <summary>
+        /// [Editor-only] Checks whether the given <paramref name="unityObject"/> is a valid Unity object to be referenced or not.
+        /// </summary>
+        /// <remarks>
+        /// This method checks the Unity object HideFlags and Tags.
+        /// The following HideFlags are considered invalid except for Meshes and Materials:
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSave.html">HideFlags.DontSave</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInBuild.html">HideFlags.DontSaveInBuild</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInEditor.html">HideFlags.DontSaveInEditor</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.HideAndDontSave.html">HideFlags.HideAndDontSave</see>
+        /// And then checks whether the given Unity object is a GameObject, if it is, then uses the <see cref="invalidGameObjectTags"/> to determine if the GameObject is valid.
+        /// Uses <see cref="HasInvalidTag(GameObject)"/>.
+        /// </remarks>
+        /// <seealso href="https://docs.unity3d.com/ScriptReference/Object-hideFlags.html"/>
+        /// <seealso href="https://docs.unity3d.com/ScriptReference/HideFlags.html"/>
+        /// <param name="unityObject">The Unity object to check</param>
+        /// <returns>Returns true if the Unity object is valid, otherwise false</returns>
+        public virtual bool IsValidUnityObject(UnityObject unityObject)
+        {
+            if (unityObject == null)
+            {
+                return false;
+            }
+
+            // Check if any of the hide flags determine that it should not be refrenced or serialized.
+            if ((((unityObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave) ||
+                 ((unityObject.hideFlags & HideFlags.DontSaveInBuild) == HideFlags.DontSaveInBuild) ||
+                 ((unityObject.hideFlags & HideFlags.DontSaveInEditor) == HideFlags.DontSaveInEditor) ||
+                 ((unityObject.hideFlags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)))
+            {
+                var type = unityObject.GetType();
+
+                // Meshes are marked with HideAndDontSave, but shouldn't be ignored.
+                if (type != typeof(Mesh) && type != typeof(Material))
+                {
+                    return false;
+                }
+            }
+            if (unityObject is GameObject)
+            {
+                var gameObject = unityObject as GameObject;
+                return !HasInvalidTag(gameObject);
+            }
+            if (unityObject is Component)
+            {
+                var gameObject = (unityObject as Component).gameObject;
+                return !HasInvalidTag(gameObject);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Checks whether the given GameObject has any invalid tags determined using <see cref="invalidGameObjectTags"/> field.
+        /// </summary>
+        /// <param name="gameObject">The GameObject to check</param>
+        /// <returns>Returns true if the GameObject has any invalid tag, otherwise false</returns>
+        public virtual bool HasInvalidTag(GameObject gameObject)
+        {
+            for (int i = 0; i < this.invalidGameObjectTags.Length; i++)
+            {
+                if (gameObject.CompareTag(invalidGameObjectTags[i]))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 #endif
 
         /// <summary>
@@ -567,40 +672,201 @@ namespace Bayat.Core
         {
             return current == null;
         }
-
-        [MenuItem("GameObject/Bayat/Core/Add Scene Reference(s)")]
-        private static void AddReferenceMenuItem()
-        {
-            SceneReferenceResolver.Current.AddDependencies(Selection.objects);
-        }
-
-        [MenuItem("GameObject/Bayat/Core/Add Asset Reference(s)", true)]
-        private static bool AddReferenceMenuItemValidation()
-        {
-            if (Selection.objects.Length > 1)
-            {
-                return true;
-            }
-            else if (Selection.objects.Length > 0)
-            {
-                if (!EditorUtility.IsPersistent(Selection.activeObject))
-                {
-                    return false;
-                }
-                if (Selection.activeObject == null || !CanBeSaved(Selection.activeObject))
-                {
-                    return false;
-                }
-                Type assetType = Selection.activeObject.GetType();
-                if (typeof(MonoScript).IsAssignableFrom(assetType) || typeof(UnityEditor.DefaultAsset).IsAssignableFrom(assetType))
-                {
-                    return false;
-                }
-                return true;
-            }
-            return false;
-        }
 #endif
+
+        /// <summary>
+        /// Gets the reference resolver for the specified <paramref name="scene"/>.
+        /// </summary>
+        /// <param name="scene">The scene to look for the reference resolver</param>
+        /// <returns>Returns the reference resolver in the provided scene if available, otherwise null</returns>
+        public static SceneReferenceResolver GetReferenceResolver(Scene scene)
+        {
+            if (Application.isPlaying)
+            {
+                referenceResolvers.TryGetValue(scene, out SceneReferenceResolver referenceResolver);
+                return referenceResolver;
+            }
+            else
+            {
+                return Array.Find(FindObjectsOfType<SceneReferenceResolver>(), x =>
+                {
+                    return x.gameObject.scene == scene;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Gets the Unity object from the specified <paramref name="scene"/>'s reference resolver if available.
+        /// </summary>
+        /// <param name="scene">The scene to look for the reference resolver</param>
+        /// <param name="guid">The referenced Unity object GUID</param>
+        /// <returns>Returns the referenced Unity object if available, otherwise null</returns>
+        public static UnityObject GetSceneUnityObjectReference(Scene scene, string guid)
+        {
+            if (string.IsNullOrEmpty(guid))
+            {
+                throw new ArgumentNullException(nameof(guid));
+            }
+            var referenceResolver = GetReferenceResolver(scene);
+            if (referenceResolver == null)
+            {
+                return null;
+            }
+            return referenceResolver.Get(guid);
+        }
+
+        /// <summary>
+        /// Gets the referenced <paramref name="unityObject"/> GUID from the specified <paramref name="scene"/>'s reference resolver if available.
+        /// </summary>
+        /// <param name="scene">The scene to look for the reference resolver</param>
+        /// <param name="unityObject">The referenced Unity object</param>
+        /// <returns>Returns the referenced <paramref name="unityObject"/> GUID's if available, otherwise null</returns>
+        public static string GetSceneGuidReference(Scene scene, UnityObject unityObject)
+        {
+            if (unityObject == null)
+            {
+                throw new ArgumentNullException(nameof(unityObject));
+            }
+            var referenceResolver = GetReferenceResolver(scene);
+            if (referenceResolver == null)
+            {
+                return null;
+            }
+            return referenceResolver.Get(unityObject);
+        }
+
+        /// <summary>
+        /// Searches through all reference resolvers and gets the Unity object by the specified <paramref name="guid"/>.
+        /// </summary>
+        /// <param name="guid">The referenced Unity object GUID</param>
+        /// <returns>Returns the referenced Unity object if available, otherwise null</returns>
+        public static UnityObject GetAnyUnityObjectReference(string guid)
+        {
+            if (Application.isPlaying)
+            {
+                UnityObject unityObject;
+                foreach (var pair in referenceResolvers)
+                {
+                    unityObject = pair.Value.Get(guid);
+                    if (unityObject != null)
+                    {
+                        return unityObject;
+                    }
+                }
+                return null;
+            }
+            else
+            {
+                UnityObject unityObject;
+                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                {
+                    unityObject = referenceResolver.Get(guid);
+                    if (unityObject != null)
+                    {
+                        return unityObject;
+                    }
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Searches through all reference resolvers and gets the referenced <paramref name="unityObject"/>'s GUID.
+        /// </summary>
+        /// <param name="unityObject">The referenced Unity object</param>
+        /// <returns>Returns the referenced <paramref name="unityObject"/> GUID's if available, otherwise null</returns>
+        public static string GetAnyGuidReference(UnityObject unityObject)
+        {
+            if (Application.isPlaying)
+            {
+                string guid;
+                foreach (var pair in referenceResolvers)
+                {
+                    guid = pair.Value.Get(unityObject);
+                    if (!string.IsNullOrEmpty(guid))
+                    {
+                        return guid;
+                    }
+                }
+                return null;
+            }
+            else
+            {
+                string guid;
+                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                {
+                    guid = referenceResolver.Get(unityObject);
+                    if (!string.IsNullOrEmpty(guid))
+                    {
+                        return guid;
+                    }
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Gets the Unity object's scene.
+        /// </summary>
+        /// <remarks>
+        /// First checks if the provided Unity object is a GameObject or Component, 
+        /// then uses the <see href="https://docs.unity3d.com/ScriptReference/GameObject-scene.html">GameObject.scene</see> property to retrieve the scene the Unity object is residing at.
+        /// </remarks>
+        /// <param name="unityObject">The Unity object</param>
+        /// <returns>Returns the Unity object's scene if it is a GameObject or Component, otherwise null</returns>
+        public static Scene? GetUnityObjectScene(UnityObject unityObject)
+        {
+            if (unityObject is GameObject)
+            {
+                return (unityObject as GameObject).scene;
+            }
+            else if (unityObject is Component)
+            {
+                return (unityObject as Component).gameObject.scene;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets all referenced Unity objects from all the currently available reference resolvers.
+        /// </summary>
+        /// <remarks>
+        /// It retrieves the referenced Unity objects from the currently open scenes that have a <see cref="SceneReferenceResolver"/> in them.
+        /// </remarks>
+        /// <returns>Returns a List of currently referenced Unity objecs from the available reference resolvers</returns>
+        public static List<UnityObject> GetAllUnityObjects()
+        {
+            if (Application.isPlaying)
+            {
+                List<UnityObject> unityObjects = new List<UnityObject>();
+                foreach (var pair in referenceResolvers)
+                {
+                    foreach (var reference in pair.Value.GuidToReference)
+                    {
+                        if (!unityObjects.Contains(reference.Value))
+                        {
+                            unityObjects.Add(reference.Value);
+                        }
+                    }
+                }
+                return unityObjects;
+            }
+            else
+            {
+                List<UnityObject> unityObjects = new List<UnityObject>();
+                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                {
+                    foreach (var reference in referenceResolver.GuidToReference)
+                    {
+                        if (!unityObjects.Contains(reference.Value))
+                        {
+                            unityObjects.Add(reference.Value);
+                        }
+                    }
+                }
+                return unityObjects;
+            }
+        }
 
 #if UNITY_EDITOR
         /// <summary>

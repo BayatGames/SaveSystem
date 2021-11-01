@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using System.IO;
+
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
 using Bayat.Core.Utilities;
+
+using UnityObject = UnityEngine.Object;
 
 namespace Bayat.Core
 {
@@ -70,6 +75,8 @@ namespace Bayat.Core
             }
         }
 
+        [SerializeField]
+        protected string[] invalidGameObjectTags = new string[] { "EditorOnly" };
         [SerializeField]
         protected List<string> guids = new List<string>();
         [SerializeField]
@@ -550,77 +557,70 @@ namespace Bayat.Core
             return true;
         }
 
-        [MenuItem("GameObject/Bayat/Core/Add Asset Reference(s)")]
-        private static void AddSceneReferenceMenuItem()
+        /// <summary>
+        /// [Editor-only] Checks whether the given <paramref name="unityObject"/> is a valid Unity object to be referenced or not.
+        /// </summary>
+        /// <remarks>
+        /// This method checks the Unity object HideFlags and Tags.
+        /// The following HideFlags are considered invalid except for Meshes and Materials:
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSave.html">HideFlags.DontSave</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInBuild.html">HideFlags.DontSaveInBuild</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInEditor.html">HideFlags.DontSaveInEditor</see>
+        /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.HideAndDontSave.html">HideFlags.HideAndDontSave</see>
+        /// And then checks whether the given Unity object is a GameObject, if it is, then uses the <see cref="invalidGameObjectTags"/> to determine if the GameObject is valid.
+        /// Uses <see cref="HasInvalidTag(GameObject)"/>.
+        /// </remarks>
+        /// <seealso href="https://docs.unity3d.com/ScriptReference/Object-hideFlags.html"/>
+        /// <seealso href="https://docs.unity3d.com/ScriptReference/HideFlags.html"/>
+        /// <param name="unityObject">The Unity object to check</param>
+        /// <returns>Returns true if the Unity object is valid, otherwise false</returns>
+        public virtual bool IsValidUnityObject(UnityObject unityObject)
         {
-            AssetReferenceResolver.Current.AddDependencies(Selection.objects);
+            if (unityObject == null)
+            {
+                return false;
+            }
+
+            // Check if any of the hide flags determine that it should not be refrenced or serialized.
+            if ((((unityObject.hideFlags & HideFlags.DontSave) == HideFlags.DontSave) ||
+                 ((unityObject.hideFlags & HideFlags.DontSaveInBuild) == HideFlags.DontSaveInBuild) ||
+                 ((unityObject.hideFlags & HideFlags.DontSaveInEditor) == HideFlags.DontSaveInEditor) ||
+                 ((unityObject.hideFlags & HideFlags.HideAndDontSave) == HideFlags.HideAndDontSave)))
+            {
+                var type = unityObject.GetType();
+
+                // Meshes are marked with HideAndDontSave, but shouldn't be ignored.
+                if (type != typeof(Mesh) && type != typeof(Material))
+                {
+                    return false;
+                }
+            }
+            if (unityObject is GameObject)
+            {
+                var gameObject = unityObject as GameObject;
+                return !HasInvalidTag(gameObject);
+            }
+            if (unityObject is Component)
+            {
+                var gameObject = (unityObject as Component).gameObject;
+                return !HasInvalidTag(gameObject);
+            }
+            return true;
         }
 
-        [MenuItem("GameObject/Bayat/Core/Add Asset Reference(s)", true)]
-        private static bool AddSceneReferenceMenuItemValidation()
+        /// <summary>
+        /// Checks whether the given GameObject has any invalid tags determined using <see cref="invalidGameObjectTags"/> field.
+        /// </summary>
+        /// <param name="gameObject">The GameObject to check</param>
+        /// <returns>Returns true if the GameObject has any invalid tag, otherwise false</returns>
+        public virtual bool HasInvalidTag(GameObject gameObject)
         {
-            if (Selection.objects.Length > 1)
+            for (int i = 0; i < this.invalidGameObjectTags.Length; i++)
             {
-                return true;
-            }
-            else if (Selection.objects.Length > 0)
-            {
-                if (!EditorUtility.IsPersistent(Selection.activeObject))
+                if (gameObject.CompareTag(invalidGameObjectTags[i]))
                 {
-                    return false;
+                    return true;
                 }
-                if (Selection.activeObject == null || !CanBeSaved(Selection.activeObject))
-                {
-                    return false;
-                }
-                Type assetType = Selection.activeObject.GetType();
-                if (typeof(MonoScript).IsAssignableFrom(assetType) || typeof(UnityEditor.DefaultAsset).IsAssignableFrom(assetType))
-                {
-                    return false;
-                }
-                return true;
-            }
-            return false;
-        }
-
-        [MenuItem("Assets/Bayat/Core/Add Asset Reference(s)")]
-        private static void AddReferenceMenuItem()
-        {
-            List<UnityEngine.Object> objectsToAdd = new List<UnityEngine.Object>();
-            foreach (var assetGUID in Selection.assetGUIDs)
-            {
-                string assetPath = AssetDatabase.GUIDToAssetPath(assetGUID);
-                objectsToAdd.Add(AssetDatabase.LoadAssetAtPath(assetPath, AssetDatabase.GetMainAssetTypeAtPath(assetPath)));
-            }
-            AssetReferenceResolver.Current.AddDependencies(objectsToAdd.ToArray());
-        }
-
-        [MenuItem("Assets/Bayat/Core/Add Asset Reference(s)", true)]
-        private static bool AddReferenceMenuItemValidation()
-        {
-            if (Selection.assetGUIDs.Length > 1)
-            {
-                return true;
-            }
-            else if (Selection.assetGUIDs.Length > 0)
-            {
-                string assetGUID = Selection.assetGUIDs[0];
-                string assetPath = AssetDatabase.GUIDToAssetPath(assetGUID);
-                UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath(assetPath, AssetDatabase.GetMainAssetTypeAtPath(assetPath));
-                if (!EditorUtility.IsPersistent(obj))
-                {
-                    return false;
-                }
-                if (obj == null || !CanBeSaved(obj))
-                {
-                    return false;
-                }
-                Type assetType = obj.GetType();
-                if (typeof(MonoScript).IsAssignableFrom(assetType) || typeof(UnityEditor.DefaultAsset).IsAssignableFrom(assetType))
-                {
-                    return false;
-                }
-                return !AssetReferenceResolver.Current.Contains(obj);
             }
             return false;
         }

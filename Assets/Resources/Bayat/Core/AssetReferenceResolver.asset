@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cce0b0b121913d4ea9364b402f4f685, type: 3}
   m_Name: AssetReferenceResolver
   m_EditorClassIdentifier: 
+  invalidGameObjectTags:
+  - EditorOnly
   guids: []
   dependencies: []
   guidToReference:
@@ -24,6 +26,9 @@ MonoBehaviour:
     - c8d7d1b1b5e24a6a8913ee0cbbbf8428
     - 547b4c9ae0994253bb2071dc87a669eb
     - 93c3bfc30ed84e12ab2e7fa7f087d719
+    - 9f5a640050064629bb043bdca254008c
+    - ad139adcb1d74418a17d926e3e715e9e
+    - 096aa01588104f4a9b08a4f5fb655431
     _Values:
     - {fileID: 2800000, guid: 07f02695cdd66174ab653e8cf1329d7f, type: 3}
     - {fileID: 2800000, guid: 0ab622086c3f0214899831ccbaedd3b1, type: 3}
@@ -33,5 +38,8 @@ MonoBehaviour:
     - {fileID: 10904, guid: 0000000000000000f000000000000000, type: 0}
     - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
     - {fileID: 11400000, guid: 9ed301a896019d147b5d2bc28a0658dd, type: 2}
+    - {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+    - {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+    - {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   mode: 1
   refreshDependenciesTimeoutInSeconds: 2
