@@ -288,7 +288,7 @@ namespace Bayat.Json.Serialization
             Type objectType = value.GetType();
 
             // ScriptableObjects data should be serialized too
-            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType) && (typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType) && !Serializer.SerializeScriptableObjects))
+            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType) || (typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType) && !Serializer.SerializeScriptableObjects))
             {
                 UnityEngine.Object unityObject = (UnityEngine.Object)value;
                 if (AssetReferenceResolver.Current != null)

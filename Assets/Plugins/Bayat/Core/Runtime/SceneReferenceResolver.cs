@@ -658,7 +658,7 @@ namespace Bayat.Core
 
 #if UNITY_EDITOR
         [MenuItem("GameObject/Bayat/Core/Scene Reference Resolver", false, 10)]
-        public static void CreateNewInstanceMenu()
+        private static void CreateNewInstanceMenu()
         {
             if (Current != null)
             {
@@ -668,7 +668,7 @@ namespace Bayat.Core
         }
 
         [MenuItem("GameObject/Bayat/Core/Scene Reference Resolver", true)]
-        public static bool CreateNewInstanceValidation()
+        private static bool CreateNewInstanceValidation()
         {
             return current == null;
         }
