@@ -25,10 +25,10 @@ The source code of the Save System for Unity engine.
 - Clone the project:
 
 ```bash
-git clone https://github.com/BayatAssetStore/SaveSystem.git
+git clone https://github.com/BayatGames/SaveSystem.git
 ```
 
-- [Download the latest release](https://github.com/BayatAssetStore/save-system-unity/releases/latest)
+- [Download the latest release](https://github.com/BayatGames/save-system-unity/releases/latest)
 - [Download the latest unity package from Unity Asset Store](https://assetstore.unity.com/packages/slug/108890)
 
 ### Build documentation
@@ -57,4 +57,4 @@ Made with ❤️ by [Bayat][author]
 
 [author]: https://bayat.io
 
-[contribute]: https://github.com/BayatAssetStore/.github/blob/main/CONTRIBUTING.md
+[contribute]: https://github.com/BayatGames/.github/blob/main/CONTRIBUTING.md
