@@ -18,7 +18,7 @@ The source code of the Save System for Unity engine.
 
 ### Prerequisites
 
-- Unity 2018.4
+- Unity 2019.4
 
 ### Download
 
@@ -41,7 +41,7 @@ docfx docs/docfx.json
 
 > We’re excited that you’re interested in contributing! Take a moment to read [`CONTRIBUTING.md`](contribute).
 
-Launch the project using the Unity 2018.4 and start contributing!
+Launch the project using the Unity 2019.4 and start contributing!
 
 ## License
 
