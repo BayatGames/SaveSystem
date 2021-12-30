@@ -10,7 +10,6 @@ The source code of the Save System for Unity engine.
 - [Manual](https://docs.bayat.io/save-system/manual/)
 - [API](https://docs.bayat.io/save-system/api/)
 - [Integrations](https://docs.bayat.io/save-system/manual/integrations/)
-- [Official Forum](https://forums.bayat.io/forums/forum/unity-assets/save-system/)
 - [Unity Forum Thread](https://forum.unity.com/threads/bayat-save-system-an-ultimate-data-management-solution.817416/)
 - [Discord](https://discord.com/invite/HWMqD7T)
 
