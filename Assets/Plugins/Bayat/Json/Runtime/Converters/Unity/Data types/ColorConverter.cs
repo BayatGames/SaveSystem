@@ -1,5 +1,7 @@
-﻿using Bayat.Json.Serialization;
-using System;
+﻿using System;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -15,15 +17,30 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
-            Color color = (Color)value;
-            writer.WritePropertyName("a");
-            writer.WriteValue(color.a);
-            writer.WritePropertyName("r");
-            writer.WriteValue(color.r);
-            writer.WritePropertyName("g");
-            writer.WriteValue(color.g);
-            writer.WritePropertyName("b");
-            writer.WriteValue(color.b);
+            if (value is Color32)
+            {
+                Color32 color = (Color32)value;
+                writer.WritePropertyName("a");
+                writer.WriteValue(color.a);
+                writer.WritePropertyName("r");
+                writer.WriteValue(color.r);
+                writer.WritePropertyName("g");
+                writer.WriteValue(color.g);
+                writer.WritePropertyName("b");
+                writer.WriteValue(color.b);
+            }
+            else
+            {
+                Color color = (Color)value;
+                writer.WritePropertyName("a");
+                writer.WriteValue(color.a);
+                writer.WritePropertyName("r");
+                writer.WriteValue(color.r);
+                writer.WritePropertyName("g");
+                writer.WriteValue(color.g);
+                writer.WritePropertyName("b");
+                writer.WriteValue(color.b);
+            }
         }
 
         public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)

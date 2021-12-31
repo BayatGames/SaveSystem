@@ -1,9 +1,11 @@
-﻿using Bayat.Core.Profiling;
-using Bayat.Core.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+
+using Bayat.Core.Profiling;
+using Bayat.Core.Text;
+
 using UnityEngine;
 
 namespace Bayat.Core.Reflection

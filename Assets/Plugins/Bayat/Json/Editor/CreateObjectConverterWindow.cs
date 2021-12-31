@@ -1,13 +1,16 @@
-﻿using Bayat.Core;
-using Bayat.Core.EditorWindows;
-using Bayat.Core.Reflection;
-using Bayat.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+
+using Bayat.Core;
+using Bayat.Core.EditorWindows;
+using Bayat.Core.Reflection;
+using Bayat.Json.Serialization;
+
 using UnityEditor;
+
 using UnityEngine;
 
 namespace Bayat.Json
@@ -72,6 +75,7 @@ namespace Bayat.Json
         protected JsonConverter[] availableConverters;
         protected bool importScript = true;
         protected bool refreshAssetDatabase = true;
+        protected bool showEditorAssemblies = false;
 
         protected int typesCount = 0;
         protected int typesPageCount = 0;
@@ -133,6 +137,7 @@ namespace Bayat.Json
             this.converterFolderPath = EditorPrefs.GetString("bayat.json.createobjectconverter.containerfolderpath", "Assets/Scripts/Generated/Converters");
             this.importScript = EditorPrefs.GetBool("bayat.json.createobjectconverter.importscript");
             this.refreshAssetDatabase = EditorPrefs.GetBool("bayat.json.createobjectconverter.refreshassetdatabase");
+            this.showEditorAssemblies = EditorPrefs.GetBool("bayat.json.createobjectconverter.showeditorassemblies");
         }
 
         public override void OnClose()
@@ -140,6 +145,7 @@ namespace Bayat.Json
             EditorPrefs.SetString("bayat.json.createobjectconverter.containerfolderpath", this.converterFolderPath);
             EditorPrefs.SetBool("bayat.json.createobjectconverter.importscript", this.importScript);
             EditorPrefs.SetBool("bayat.json.createobjectconverter.refreshassetdatabase", this.refreshAssetDatabase);
+            EditorPrefs.SetBool("bayat.json.createobjectconverter.showeditorassemblies", this.showEditorAssemblies);
         }
 
         public override void OnGUI()
@@ -240,6 +246,12 @@ namespace Bayat.Json
             }
             this.converterFolderPath = EditorGUILayout.TextField("Folder", this.converterFolderPath);
             this.converterFileName = EditorGUILayout.TextField("File Name", this.converterFileName);
+            EditorGUI.BeginChangeCheck();
+            this.showEditorAssemblies = EditorGUILayout.ToggleLeft("Show Editor Assemblies", this.showEditorAssemblies);
+            if (EditorGUI.EndChangeCheck())
+            {
+                GetAssemblies();
+            }
             this.importScript = EditorGUILayout.ToggleLeft("Import Script", this.importScript);
             EditorGUILayout.BeginHorizontal();
             this.refreshAssetDatabase = EditorGUILayout.ToggleLeft("Refresh Asset Database", this.refreshAssetDatabase);
@@ -542,6 +554,17 @@ namespace Bayat.Json
                 if (GetAssemblyValidTypes(assembly).Length > 0)
                 {
                     validAssemblies.Add(assembly);
+                }
+            }
+            if (this.showEditorAssemblies)
+            {
+                for (int i = 0; i < Codebase.EditorAssemblies.Count; i++)
+                {
+                    var assembly = Codebase.EditorAssemblies[i];
+                    if (GetAssemblyValidTypes(assembly).Length > 0)
+                    {
+                        validAssemblies.Add(assembly);
+                    }
                 }
             }
             this.availableAssemblies = validAssemblies.ToArray();

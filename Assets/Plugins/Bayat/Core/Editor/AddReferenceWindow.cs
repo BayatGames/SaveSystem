@@ -320,7 +320,7 @@ namespace Bayat.Core
             Initialize(Selection.objects);
         }
 
-        [MenuItem("GameObject/Bayat/Core/Add Asset Reference(s)", true)]
+        [MenuItem("GameObject/Bayat/Core/Add Scene Reference(s)", true)]
         private static bool AddSceneReferenceMenuItemValidation()
         {
             if (Selection.objects.Length > 1)

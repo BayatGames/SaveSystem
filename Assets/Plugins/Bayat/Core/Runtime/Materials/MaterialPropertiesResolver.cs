@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -68,6 +70,8 @@ namespace Bayat.Core
         [SerializeField]
         protected List<RuntimeMaterialProperties> materialsProperties = new List<RuntimeMaterialProperties>();
 
+        protected Dictionary<string, RuntimeMaterialProperties> materialsLookup = new Dictionary<string, RuntimeMaterialProperties>();
+
         /// <summary>
         /// Gets the materials.
         /// </summary>
@@ -87,6 +91,22 @@ namespace Bayat.Core
             get
             {
                 return this.materialsProperties;
+            }
+        }
+
+        public virtual Dictionary<string, RuntimeMaterialProperties> MaterialsLookup
+        {
+            get
+            {
+                if (this.materialsLookup.Count != this.materials.Count)
+                {
+                    this.materialsLookup.Clear();
+                    for (int i = 0; i < this.materials.Count; i++)
+                    {
+                        this.materialsLookup.Add(this.materials[i].name, this.materialsProperties[i]);
+                    }
+                }
+                return this.materialsLookup;
             }
         }
 
@@ -178,6 +198,14 @@ namespace Bayat.Core
         /// <returns>The material properties <see cref="RuntimeMaterialProperties"/></returns>
         public virtual RuntimeMaterialProperties GetMaterialProperties(Material material)
         {
+            if (material.name.EndsWith(" (Instance)", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                this.MaterialsLookup.TryGetValue(material.name.Replace(" (Instance)", string.Empty), out var properties);
+                Debug.Log(material);
+                Debug.Log(material.name);
+                Debug.Log(material.name.Replace(" (Instance)", string.Empty));
+                return properties;
+            }
             int index = this.materials.IndexOf(material);
             if (index == -1)
             {

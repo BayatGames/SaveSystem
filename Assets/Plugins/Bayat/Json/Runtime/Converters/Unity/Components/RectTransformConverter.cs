@@ -1,5 +1,6 @@
-using Bayat.Json.Serialization;
 using System;
+
+using Bayat.Json.Serialization;
 
 namespace Bayat.Json.Converters
 {
@@ -9,7 +10,7 @@ namespace Bayat.Json.Converters
 
         public override string[] GetObjectProperties()
         {
-            return new string[] { "anchorMin", "anchorMax", "anchoredPosition", "sizeDelta", "pivot", "offsetMin", "offsetMax", "position", "rotation", "localScale", "parent", "hideFlags" };
+            return new string[] { "anchorMin", "anchorMax", "anchoredPosition", "sizeDelta", "pivot", "offsetMin", "offsetMax", "position", "rotation", "localScale", "parent" };
         }
 
         public override bool CanConvert(Type objectType)
@@ -31,7 +32,6 @@ namespace Bayat.Json.Converters
             internalWriter.SerializeProperty(writer, "rotation", instance.rotation);
             internalWriter.SerializeProperty(writer, "localScale", instance.localScale);
             internalWriter.SerializeProperty(writer, "parent", instance.parent);
-            internalWriter.SerializeProperty(writer, "hideFlags", instance.hideFlags);
         }
 
         public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)
@@ -70,10 +70,7 @@ namespace Bayat.Json.Converters
                     instance.localScale = internalReader.DeserializeProperty<UnityEngine.Vector3>(reader);
                     break;
                 case "parent":
-                    instance.parent = internalReader.DeserializeProperty<UnityEngine.Transform>(reader);
-                    break;
-                case "hideFlags":
-                    instance.hideFlags = internalReader.DeserializeProperty<UnityEngine.HideFlags>(reader);
+                    instance.SetParent(internalReader.DeserializeProperty<UnityEngine.Transform>(reader), false);
                     break;
                 default:
                     reader.Skip();

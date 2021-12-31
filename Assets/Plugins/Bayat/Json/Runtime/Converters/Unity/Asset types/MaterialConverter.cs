@@ -1,7 +1,9 @@
-﻿using Bayat.Core;
-using Bayat.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Bayat.Core;
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
