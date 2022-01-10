@@ -201,9 +201,6 @@ namespace Bayat.Core
             if (material.name.EndsWith(" (Instance)", System.StringComparison.InvariantCultureIgnoreCase))
             {
                 this.MaterialsLookup.TryGetValue(material.name.Replace(" (Instance)", string.Empty), out var properties);
-                Debug.Log(material);
-                Debug.Log(material.name);
-                Debug.Log(material.name.Replace(" (Instance)", string.Empty));
                 return properties;
             }
             int index = this.materials.IndexOf(material);

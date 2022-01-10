@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cce0b0b121913d4ea9364b402f4f685, type: 3}
   m_Name: AssetReferenceResolver
   m_EditorClassIdentifier: 
-  invalidGameObjectTags:
+  ignoredTags:
   - EditorOnly
+  ignoreStatic: 0
   guids: []
   dependencies: []
   guidToReference:

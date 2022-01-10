@@ -75,8 +75,12 @@ namespace Bayat.Core
             }
         }
 
+        [Tooltip("Ignore GameObjects that have any of these tags")]
         [SerializeField]
-        protected string[] invalidGameObjectTags = new string[] { "EditorOnly" };
+        protected string[] ignoredTags = new string[] { "EditorOnly" };
+        [Tooltip("Whether to ignore static GameObjects")]
+        [SerializeField]
+        protected bool ignoreStatic = false;
         [SerializeField]
         protected List<string> guids = new List<string>();
         [SerializeField]
@@ -303,7 +307,7 @@ namespace Bayat.Core
                         continue;
                     }
 
-                    if (dependency == null || !CanBeSaved(dependency))
+                    if (dependency == null || !IsValidUnityObject(dependency))
                     {
                         continue;
                     }
@@ -485,6 +489,40 @@ namespace Bayat.Core
         }
 
         /// <summary>
+        /// Removes invalid references.
+        /// </summary>
+        public virtual void RemoveInvalidReferences()
+        {
+            var removeGuids = new List<string>();
+            foreach (var item in this.GuidToReference)
+            {
+                if (!EditorUtility.IsPersistent(item.Value))
+                {
+                    removeGuids.Add(item.Key);
+                    continue;
+                }
+
+                if (item.Value == null || !IsValidUnityObject(item.Value))
+                {
+                    removeGuids.Add(item.Key);
+                    continue;
+                }
+            }
+#if UNITY_EDITOR
+            Undo.RecordObject(this, "Remove Invalid References");
+#endif
+            for (int i = 0; i < removeGuids.Count; i++)
+            {
+                this.guidToReference.Remove(removeGuids[i]);
+            }
+            this.ReferenceToGuid.Clear();
+#if UNITY_EDITOR
+            // Fix for unity serialization
+            EditorUtility.SetDirty(this);
+#endif
+        }
+
+        /// <summary>
         /// Clears the database.
         /// </summary>
         public virtual void Clear()
@@ -567,7 +605,7 @@ namespace Bayat.Core
         /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInBuild.html">HideFlags.DontSaveInBuild</see>
         /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.DontSaveInEditor.html">HideFlags.DontSaveInEditor</see>
         /// - <see href="https://docs.unity3d.com/ScriptReference/HideFlags.HideAndDontSave.html">HideFlags.HideAndDontSave</see>
-        /// And then checks whether the given Unity object is a GameObject, if it is, then uses the <see cref="invalidGameObjectTags"/> to determine if the GameObject is valid.
+        /// And then checks whether the given Unity object is a GameObject, if it is, then uses the <see cref="ignoredTags"/> to determine if the GameObject is valid.
         /// Uses <see cref="HasInvalidTag(GameObject)"/>.
         /// </remarks>
         /// <seealso href="https://docs.unity3d.com/ScriptReference/Object-hideFlags.html"/>
@@ -595,29 +633,39 @@ namespace Bayat.Core
                     return false;
                 }
             }
+            GameObject gameObject = null;
             if (unityObject is GameObject)
             {
-                var gameObject = unityObject as GameObject;
-                return !HasInvalidTag(gameObject);
+                gameObject = unityObject as GameObject;
             }
             if (unityObject is Component)
             {
-                var gameObject = (unityObject as Component).gameObject;
-                return !HasInvalidTag(gameObject);
+                gameObject = (unityObject as Component).gameObject;
+            }
+            if (gameObject != null)
+            {
+                if (this.ignoreStatic && gameObject.isStatic)
+                {
+                    return false;
+                }
+                else
+                {
+                    return !HasInvalidTag(gameObject);
+                }
             }
             return true;
         }
 
         /// <summary>
-        /// Checks whether the given GameObject has any invalid tags determined using <see cref="invalidGameObjectTags"/> field.
+        /// Checks whether the given GameObject has any invalid tags determined using <see cref="ignoredTags"/> field.
         /// </summary>
         /// <param name="gameObject">The GameObject to check</param>
         /// <returns>Returns true if the GameObject has any invalid tag, otherwise false</returns>
         public virtual bool HasInvalidTag(GameObject gameObject)
         {
-            for (int i = 0; i < this.invalidGameObjectTags.Length; i++)
+            for (int i = 0; i < this.ignoredTags.Length; i++)
             {
-                if (gameObject.CompareTag(invalidGameObjectTags[i]))
+                if (gameObject.CompareTag(ignoredTags[i]))
                 {
                     return true;
                 }

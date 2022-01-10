@@ -1,5 +1,7 @@
 ﻿using Bayat.Core.EditorWindows;
+
 using UnityEditor;
+
 using UnityEngine;
 
 namespace Bayat.Core
@@ -14,6 +16,8 @@ namespace Bayat.Core
         protected SerializedProperty updateOnEnteringPlayMode;
         protected SerializedProperty updateOnSceneSaving;
         protected SerializedProperty refreshDependenciesTimeoutInSeconds;
+        protected SerializedProperty ignoredTags;
+        protected SerializedProperty ignoreStatic;
         protected bool foldout = false;
 
         private void OnEnable()
@@ -23,6 +27,8 @@ namespace Bayat.Core
             this.updateOnEnteringPlayMode = this.serializedObject.FindProperty("updateOnEnteringPlayMode");
             this.updateOnSceneSaving = this.serializedObject.FindProperty("updateOnSceneSaving");
             this.refreshDependenciesTimeoutInSeconds = this.serializedObject.FindProperty("refreshDependenciesTimeoutInSeconds");
+            this.ignoredTags = this.serializedObject.FindProperty("ignoredTags");
+            this.ignoreStatic = this.serializedObject.FindProperty("ignoreStatic");
         }
 
         public override void OnInspectorGUI()
@@ -37,6 +43,8 @@ namespace Bayat.Core
 
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(this.mode);
+            EditorGUILayout.PropertyField(this.ignoredTags);
+            EditorGUILayout.PropertyField(this.ignoreStatic);
 
             EditorGUI.BeginDisabledGroup(this.sceneReferenceResolver.Mode == ReferenceResolverMode.Manual);
             EditorGUILayout.PropertyField(this.updateOnEnteringPlayMode);
@@ -54,6 +62,11 @@ namespace Bayat.Core
             if (GUILayout.Button("Refresh References"))
             {
                 this.sceneReferenceResolver.RefreshDependencies();
+            }
+
+            if (GUILayout.Button("Remove Invalid References"))
+            {
+                this.sceneReferenceResolver.RemoveInvalidReferences();
             }
 
             //var availableDependencies = this.sceneReferenceResolver.AvailableDependencies;
