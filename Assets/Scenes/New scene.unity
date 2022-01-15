@@ -152,8 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 059d36cd9e71ad249af73427f2ca59af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  invalidGameObjectTags:
+  ignoredTags:
   - EditorOnly
+  ignoreStatic: 1
   guids: []
   sceneDependencies: []
   guidToReference:
@@ -162,49 +163,14 @@ MonoBehaviour:
     - 326ee4aca9054bc3b0e50fc22211ceb0
     - 0de6255a79394b22bd196693f3f9ea19
     - 2bb119e0c59e4621a25e3e2f7f187d17
-    - a2bcc3b1f2c84d78a6778b0494dc5bea
-    - 9a0807b249414eeea0447ce8e30e62c4
-    - b81ebda3b5ab4cfca6bbc807d7b7608c
-    - 38d1bccb4b7f4117a3d592dfeb2a28f3
-    - 281b94105d1545d7a049a59a362718a5
-    - f4d60fb198d44e05b425cf7b7327e62f
-    - 64e8b01001984828a45d3bce5aee25b1
-    - 9e5958f966de4f989322f564e654106d
-    - 88d4a88ab82b46f48e0eff90971ea799
-    - 8d3615c741d6456ab88472aec6b9a6ec
-    - 6d8aeb954b6847d782bb65d9867186e6
-    - aae0f95cf72a423aa95bb86d54c85592
-    - 9768587c60bd4bd0acaa11530bc6ee50
-    - b0ebc5be5ae84c639a06a8a970cbeec7
-    - d8894236d6d04739a64171df4dcef70b
-    - 6fffe29997a34ce8b9d4e7c4aec8b043
-    - 02ffba65c7154d3d843b195412e9ec00
-    - 73aba3c3be884900bcf488ab9883afd1
-    - 8cf7371ebaf14a24845e9c8a841b574e
-    - a0064a58f69544d2b412ef8b755349c1
-    - f09c3644ee814decb475b9232c44b5c6
-    - 4ce47a068d464adda12157e02522bd09
-    - b87c0b86b3ea4d45bbd7fa00237c3fd3
-    - c8eb2388739c472c9b681d56f7064435
-    - 8f2eb8b5b3c34b21b213235495027ebc
-    - 4d162337abf240c88ff8c9f27d28a4bd
-    - 5e9928a54f604586977d4e3afee8a0ac
-    - bdd1797172ac456c865b4a08989ed678
-    - c1eb3b151cc04d459016812be926763c
-    - 683b66625e1547498c0794954ac46b85
-    - 0d232aed3f504a47bfdba58bfefc2af7
-    - 475c5bfa0d3f47dab312b7a2718a0e31
-    - 5b9022e4399941c183e76c0fbf3756dc
-    - 0f85093cf70b49ce9cadf9379885d58f
-    - c8161b4d744941f0872cf5fb31073bfa
-    - 1fb478eeee2645f59358afd02792e410
-    - f09aa65881dc44d6a00a8080c177231b
-    - 508096a911fb4a41b256650be753d52d
-    - 18096eb34a444dffb1b79a26e26a801d
-    - 0647ff4922b3459cb01d206fbf5b5990
-    - f0c9d95c6c034ca2a3e486083b60c3bf
-    - 25804caa7aa541a29918076a09fcceac
-    - eea5a16e66aa490994959891378e568b
+    - f708d9deafcd49ed980ae219636865dc
+    - f5003d5df2df484ba042d0e3b97d6586
+    - f836c6980b5248ee9c8e2a6517e41d9d
+    - 16b3d6b5be6e4576be26db03c35174f8
+    - 10d487d356774b74b38683d416df54c4
+    - 58c9bb495cb44d18a89bc19bfbb87b4d
+    - c3abda089c8b41e88e58c317f5f07d7c
+    - e26705b491134e3cad8940e981a4e75e
     _Values:
     - {fileID: 779011509}
     - {fileID: 779011512}
@@ -218,41 +184,6 @@ MonoBehaviour:
     - {fileID: 63820557}
     - {fileID: 63820556}
     - {fileID: 63820555}
-    - {fileID: 1706120405}
-    - {fileID: 832832101}
-    - {fileID: 536849368}
-    - {fileID: 2034454518}
-    - {fileID: 175061247}
-    - {fileID: 175061243}
-    - {fileID: 175061244}
-    - {fileID: 175061248}
-    - {fileID: 175061246}
-    - {fileID: 1706120406}
-    - {fileID: 175061245}
-    - {fileID: 536849364}
-    - {fileID: 536849365}
-    - {fileID: 536849369}
-    - {fileID: 536849367}
-    - {fileID: 536849366}
-    - {fileID: 832832097}
-    - {fileID: 832832098}
-    - {fileID: 832832102}
-    - {fileID: 832832100}
-    - {fileID: 832832099}
-    - {fileID: 1706120402}
-    - {fileID: 1706120404}
-    - {fileID: 1706120403}
-    - {fileID: 1706120407}
-    - {fileID: 2034454515}
-    - {fileID: 2034454514}
-    - {fileID: 2034454519}
-    - {fileID: 2034454517}
-    - {fileID: 2034454516}
-    - {fileID: 1706120408}
-    - {fileID: 2034454520}
-    - {fileID: 832832103}
-    - {fileID: 175061249}
-    - {fileID: 536849370}
   availableDependencies: []
   mode: 0
   updateOnSceneSaving: 1
@@ -275,9 +206,9 @@ MonoBehaviour:
   autoSaves:
   - {fileID: 1706120408}
   - {fileID: 175061249}
+  - {fileID: 832832103}
   - {fileID: 536849370}
   - {fileID: 2034454520}
-  - {fileID: 832832103}
   saveEvent: 3
   loadEvent: 3
 --- !u!114 &63820557
@@ -325,7 +256,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!224 &175061244
 RectTransform:
@@ -553,7 +484,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!224 &536849365
 RectTransform:
@@ -864,7 +795,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!224 &832832098
 RectTransform:
@@ -1184,7 +1115,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!65 &1706120403
 BoxCollider:
@@ -1330,7 +1261,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!224 &2034454515
 RectTransform:

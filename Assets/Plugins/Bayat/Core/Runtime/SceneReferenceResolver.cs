@@ -344,6 +344,37 @@ namespace Bayat.Core
             AssetReferenceResolver.Current.AddDependencies(objs);
             Undo.RecordObject(this, "Update Save System Scene Reference List");
         }
+
+        /// <summary>
+        /// Removes invalid references.
+        /// </summary>
+        public virtual void RemoveInvalidReferences()
+        {
+            var removeGuids = new List<string>();
+            foreach (var item in this.GuidToReference)
+            {
+                if (EditorUtility.IsPersistent(item.Value))
+                {
+                    removeGuids.Add(item.Key);
+                    continue;
+                }
+
+                if (item.Value == null || !IsValidUnityObject(item.Value) || AssetReferenceResolver.Current.Contains(item.Value))
+                {
+                    removeGuids.Add(item.Key);
+                    continue;
+                }
+            }
+            Undo.RecordObject(this, "Remove Invalid References");
+            for (int i = 0; i < removeGuids.Count; i++)
+            {
+                this.guidToReference.Remove(removeGuids[i]);
+            }
+            this.ReferenceToGuid.Clear();
+
+            // Fix for unity serialization
+            EditorUtility.SetDirty(this);
+        }
 #endif
 
         /// <summary>
@@ -502,40 +533,6 @@ namespace Bayat.Core
                 this.guidToReference.Add(item.Key, item.Value);
                 this.ReferenceToGuid.Add(item.Value, item.Key);
             }
-#if UNITY_EDITOR
-            // Fix for unity serialization
-            EditorUtility.SetDirty(this);
-#endif
-        }
-
-        /// <summary>
-        /// Removes invalid references.
-        /// </summary>
-        public virtual void RemoveInvalidReferences()
-        {
-            var removeGuids = new List<string>();
-            foreach (var item in this.GuidToReference)
-            {
-                if (EditorUtility.IsPersistent(item.Value))
-                {
-                    removeGuids.Add(item.Key);
-                    continue;
-                }
-
-                if (item.Value == null || !IsValidUnityObject(item.Value) || AssetReferenceResolver.Current.Contains(item.Value))
-                {
-                    removeGuids.Add(item.Key);
-                    continue;
-                }
-            }
-#if UNITY_EDITOR
-            Undo.RecordObject(this, "Remove Invalid References");
-#endif
-            for (int i = 0; i < removeGuids.Count; i++)
-            {
-                this.guidToReference.Remove(removeGuids[i]);
-            }
-            this.ReferenceToGuid.Clear();
 #if UNITY_EDITOR
             // Fix for unity serialization
             EditorUtility.SetDirty(this);
