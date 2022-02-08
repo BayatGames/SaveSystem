@@ -170,6 +170,11 @@ namespace Bayat.Json.Serialization
                 writer.WriteNull();
                 return;
             }
+            if (value is UnityEngine.Object && value as UnityEngine.Object == null)
+            {
+                writer.WriteNull();
+                return;
+            }
 
             JsonConverter converter =
                 ((member != null) ? member.Converter : null) ??
@@ -261,6 +266,10 @@ namespace Bayat.Json.Serialization
             {
                 return false;
             }
+            if (value is UnityEngine.Object && value as UnityEngine.Object == null)
+            {
+                return false;
+            }
             if (valueContract.ContractType == JsonContractType.Primitive || valueContract.ContractType == JsonContractType.String)
             {
                 return false;
@@ -287,8 +296,13 @@ namespace Bayat.Json.Serialization
 
             Type objectType = value.GetType();
 
-            // ScriptableObjects data should be serialized too
-            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType) || (typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType) && !Serializer.SerializeScriptableObjects))
+            // If the serialize scriptable objects option is enabled, and this object is a ScriptableObject, then its data should be serialized instead of being referenced
+            if (typeof(UnityEngine.ScriptableObject).IsAssignableFrom(objectType) && Serializer.SerializeScriptableObjects)
+            {
+                return false;
+            }
+
+            if (typeof(UnityEngine.Object).IsAssignableFrom(objectType))
             {
                 UnityEngine.Object unityObject = (UnityEngine.Object)value;
                 if (AssetReferenceResolver.Current != null)

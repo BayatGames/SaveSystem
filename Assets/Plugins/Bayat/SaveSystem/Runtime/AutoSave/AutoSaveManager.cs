@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -167,7 +169,7 @@ namespace Bayat.SaveSystem
             this.autoSaves.Remove(autoSave);
         }
 
-        public virtual void Save()
+        public virtual async void Save()
         {
             GameObject[] gameObjects = new GameObject[this.autoSaves.Count];
             for (int i = 0; i < this.autoSaves.Count; i++)
@@ -178,7 +180,16 @@ namespace Bayat.SaveSystem
                 }
                 gameObjects[i] = this.autoSaves[i].gameObject;
             }
-            SaveSystemAPI.SaveAsync(this.identifier, gameObjects, this.settingsPreset.CustomSettings);
+            var task = SaveSystemAPI.SaveAsync(this.identifier, gameObjects, this.settingsPreset.CustomSettings);
+            await task;
+            if (task.Exception != null)
+            {
+                Debug.LogException(task.Exception);
+                for (int i = 0; i < task.Exception.InnerExceptions.Count; i++)
+                {
+                    Debug.LogException(task.Exception.InnerExceptions[i]);
+                }
+            }
         }
 
         public virtual async void Load()
@@ -187,7 +198,16 @@ namespace Bayat.SaveSystem
             {
                 return;
             }
-            await SaveSystemAPI.LoadAsync<GameObject[]>(this.identifier, this.settingsPreset.CustomSettings);
+            var task = SaveSystemAPI.LoadAsync<GameObject[]>(this.identifier, this.settingsPreset.CustomSettings);
+            await task;
+            if (task.Exception != null)
+            {
+                Debug.LogException(task.Exception);
+                for (int i = 0; i < task.Exception.InnerExceptions.Count; i++)
+                {
+                    Debug.LogException(task.Exception.InnerExceptions[i]);
+                }
+            }
         }
 
         /// <summary>
