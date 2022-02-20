@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 #if !(NET20 || NET35 || (UNITY_WSA || UNITY_WINRT) || PORTABLE40)
 using System.Numerics;
+
 #endif
 using Bayat.Json.Shims;
 

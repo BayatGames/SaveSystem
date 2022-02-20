@@ -7,6 +7,10 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
+using Bayat.Json.Serialization;
+
+using System.Diagnostics;
+
 namespace Bayat.Json
 {
 
@@ -90,6 +94,11 @@ namespace Bayat.Json
         protected string cultureName = string.Empty;
         [SerializeField]
         protected int maxDepth = 0;
+        [SerializeField]
+        protected bool enableUnityTraceWriter = false;
+        [Tooltip("The verbose option causes errors during serialization, prevent using it")]
+        [SerializeField]
+        protected TraceLevel traceLevel = TraceLevel.Info;
 
         protected JsonSerializerSettings customSettings;
 
@@ -121,6 +130,15 @@ namespace Bayat.Json
             }
         }
 
+        protected virtual void OnValidate()
+        {
+            if (this.traceLevel == TraceLevel.Verbose)
+            {
+                UnityEngine.Debug.LogWarning("The Trace Level of Verbose is not supported");
+                this.traceLevel = TraceLevel.Info;
+            }
+        }
+
         /// <summary>
         /// Applies the settings to the <see cref="JsonSerializerSettings"/> instance.
         /// </summary>
@@ -148,6 +166,14 @@ namespace Bayat.Json
             settings.TypeNameAssemblyFormat = this.typeNameAssemblyFormat;
             settings.TypeNameHandling = this.typeNameHandling;
             settings.Converters = JsonSerializer.AvailableConverters;
+
+            if (this.enableUnityTraceWriter)
+            {
+                var traceWriter = new UnityTraceWriter();
+                traceWriter.LevelFilter = this.traceLevel;
+                settings.TraceWriter = traceWriter;
+            }
+
             if (this.maxDepth > 0)
             {
                 settings.MaxDepth = this.maxDepth;

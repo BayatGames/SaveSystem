@@ -561,6 +561,17 @@ namespace Bayat.Json.Serialization
                         //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
                         //}
                     }
+                    if (id != null)
+                    {
+                        if (newValue != null)
+                        {
+                            AddReference(reader, id, newValue);
+                        }
+                        else
+                        {
+                            AddReference(reader, id, unityObject);
+                        }
+                    }
                     if (unityObject != null)
                     {
                         return unityObject;
@@ -585,6 +596,17 @@ namespace Bayat.Json.Serialization
                         //{
                         //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
                         //}
+                    }
+                    if (id != null)
+                    {
+                        if (newValue != null)
+                        {
+                            AddReference(reader, id, newValue);
+                        }
+                        else
+                        {
+                            AddReference(reader, id, unityObject);
+                        }
                     }
                     if (unityObject != null)
                     {
@@ -801,6 +823,10 @@ namespace Bayat.Json.Serialization
                         }
 
                         newValue = Serializer.ReferenceResolver.ResolveReference(this, reference);
+                        if (newValue as UnityEngine.Object != null)
+                        {
+                            unityObject = newValue as UnityEngine.Object;
+                        }
 
                         if (TraceWriter != null && TraceWriter.LevelFilter >= TraceLevel.Info)
                         {
@@ -900,6 +926,10 @@ namespace Bayat.Json.Serialization
                                 }
 
                                 newValue = Serializer.ReferenceResolver.ResolveReference(this, reference);
+                                if (newValue as UnityEngine.Object != null)
+                                {
+                                    unityObject = newValue as UnityEngine.Object;
+                                }
 
                                 if (TraceWriter != null && TraceWriter.LevelFilter >= TraceLevel.Info)
                                 {
@@ -1333,7 +1363,6 @@ namespace Bayat.Json.Serialization
                 {
                     TraceWriter.Trace(TraceLevel.Verbose, JsonPosition.FormatMessage(reader as IJsonLineInfo, reader.Path, "Read object reference Id '{0}' for {1}.".FormatWith(CultureInfo.InvariantCulture, id, value.GetType())), null);
                 }
-
                 Serializer.ReferenceResolver.AddReference(this, id, value);
             }
             catch (Exception ex)
@@ -2783,6 +2812,7 @@ namespace Bayat.Json.Serialization
                 switch (memberName)
                 {
                     case JsonTypeReflector.IdPropertyName:
+                    case JsonTypeReflector.UnityRefPropertyName:
                     case JsonTypeReflector.RefPropertyName:
                     case JsonTypeReflector.TypePropertyName:
                     case JsonTypeReflector.ArrayValuesPropertyName:

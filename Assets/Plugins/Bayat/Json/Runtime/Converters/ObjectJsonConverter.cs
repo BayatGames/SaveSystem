@@ -48,7 +48,7 @@ namespace Bayat.Json.Converters
                 }
                 else
                 {
-                    if (value == null)
+                    if (value == null || (value is UnityEngine.Object && value as UnityEngine.Object == null))
                     {
                         writer.WriteNull();
                         return;
@@ -168,6 +168,17 @@ namespace Bayat.Json.Converters
                             //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
                             //}
                         }
+                        if (id != null)
+                        {
+                            if (newValue != null)
+                            {
+                                internalReader.AddReference(reader, id, newValue);
+                            }
+                            else
+                            {
+                                internalReader.AddReference(reader, id, unityObject);
+                            }
+                        }
                         if (unityObject != null)
                         {
                             return unityObject;
@@ -181,6 +192,7 @@ namespace Bayat.Json.Converters
                     object newValue;
                     if (internalReader.ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, null, null, null, existingValue, out newValue, out id, out unityGuid, out unityObject))
                     {
+
                         if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
                         {
                             SceneReferenceResolver.Current.Add(unityObject, unityGuid);
@@ -192,6 +204,17 @@ namespace Bayat.Json.Converters
                             //{
                             //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
                             //}
+                        }
+                        if (id != null)
+                        {
+                            if (newValue != null)
+                            {
+                                internalReader.AddReference(reader, id, newValue);
+                            }
+                            else
+                            {
+                                internalReader.AddReference(reader, id, unityObject);
+                            }
                         }
                         if (unityObject != null)
                         {
@@ -224,22 +247,13 @@ namespace Bayat.Json.Converters
                     targetObject = Create(reader, internalReader, objectContract, id, unityGuid, objectType, out createdFromNonDefaultCreator);
                 }
 
-                if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
-                {
-                    SceneReferenceResolver.Current.Add((UnityEngine.Object)targetObject, unityGuid);
-                    //if (SceneReferenceResolver.Current.Contains(unityGuid))
-                    //{
-                    //    SceneReferenceResolver.Current.Set(unityGuid, (UnityEngine.Object)targetObject);
-                    //}
-                    //else
-                    //{
-                    //    SceneReferenceResolver.Current.Add(unityGuid, (UnityEngine.Object)targetObject);
-                    //}
-                }
-
                 // don't populate if read from non-default creator because the object has already been read
                 if (createdFromNonDefaultCreator)
                 {
+                    if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
+                    {
+                        SceneReferenceResolver.Current.Add((UnityEngine.Object)targetObject, unityGuid);
+                    }
                     return targetObject;
                 }
                 internalReader.OnDeserializing(reader, contract, targetObject);
@@ -255,6 +269,10 @@ namespace Bayat.Json.Converters
                     internalReader.AddReference(reader, id, targetObject);
                 }
                 internalReader.OnDeserialized(reader, contract, targetObject);
+                if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
+                {
+                    SceneReferenceResolver.Current.Add((UnityEngine.Object)targetObject, unityGuid);
+                }
                 return targetObject;
             }
             else
@@ -277,10 +295,12 @@ namespace Bayat.Json.Converters
 
         public virtual IEnumerable<string> GetProperties(JsonReader reader, JsonSerializerReader internalReader)
         {
-            if (reader.TokenType != JsonToken.PropertyName)
-            {
-                reader.ReadAndMoveToContent();
-            }
+            //UnityEngine.Debug.LogError(reader.TokenType);
+            //if (reader.TokenType != JsonToken.PropertyName)
+            //{
+            //    reader.ReadAndMoveToContent();
+            //}
+            //UnityEngine.Debug.LogError(reader.TokenType);
             bool finished = false;
             do
             {

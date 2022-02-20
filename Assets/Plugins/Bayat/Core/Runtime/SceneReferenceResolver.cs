@@ -412,6 +412,11 @@ namespace Bayat.Core
         /// <returns></returns>
         public virtual string Add(UnityEngine.Object obj)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+
             string guid;
             // If it already exists in the list, do nothing.
             if (this.ReferenceToGuid.TryGetValue(obj, out guid))
@@ -431,8 +436,12 @@ namespace Bayat.Core
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="guid"></param>
-        public virtual void Add(UnityEngine.Object obj, string guid)
+        public virtual void Add(UnityObject obj, string guid)
         {
+            if (obj == null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
 
             // If the GUID is null or empty, generate a new GUID.
             if (string.IsNullOrEmpty(guid))

@@ -35,3 +35,5 @@ MonoBehaviour:
   typeNameHandling: 3
   cultureName: 
   maxDepth: 0
+  enableUnityTraceWriter: 0
+  traceLevel: 3

@@ -1,5 +1,7 @@
-using Bayat.Json.Serialization;
 using System;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -27,6 +29,10 @@ namespace Bayat.Json.Converters
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
             var instance = (UnityEngine.Mesh)value;
+            if (!instance.isReadable)
+            {
+                return;
+            }
 #if UNITY_2017_3
             internalWriter.SerializeProperty(writer, "indexFormat", instance.indexFormat);
 #endif
@@ -70,6 +76,11 @@ namespace Bayat.Json.Converters
         public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)
         {
             var instance = (UnityEngine.Mesh)targetObject;
+            if (!instance.isReadable)
+            {
+                reader.Skip();
+                return instance;
+            }
             switch (memberName)
             {
 #if UNITY_2017_3

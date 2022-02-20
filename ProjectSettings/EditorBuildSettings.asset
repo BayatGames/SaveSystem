@@ -6,6 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 36e8920c556dfc34ba5527bde2c3788b
+    path: Assets/Bayat/SaveSystem/Demos/1 - Saving & Loading Primitive Data/Saving
+      & Loading Primitive Data.unity
+    guid: 49f219e08713e77488654b8218e1e2a9
   m_configObjects: {}

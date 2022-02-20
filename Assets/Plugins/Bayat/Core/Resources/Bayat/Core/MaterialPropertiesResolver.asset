@@ -23,12 +23,14 @@ MonoBehaviour:
   - {fileID: 2100000, guid: e3265ab4bf004d28a9537516768c1c75, type: 3}
   materialsProperties:
   - name: Font Material
+    guid: 0000000000000000e000000000000000
     properties:
     - name: _MainTex
       type: 4
     - name: _Color
       type: 0
   - name: Default-Material
+    guid: 0000000000000000f000000000000000
     properties:
     - name: _Color
       type: 0
@@ -85,6 +87,7 @@ MonoBehaviour:
     - name: _ZWrite
       type: 2
   - name: Blue
+    guid: ca4ae24a6e91cca4cae68acbeb486978
     properties:
     - name: _Color
       type: 0
@@ -141,6 +144,7 @@ MonoBehaviour:
     - name: _ZWrite
       type: 2
   - name: Red
+    guid: 95ecd854862c47b44aab9628dea646db
     properties:
     - name: _Color
       type: 0
@@ -197,6 +201,7 @@ MonoBehaviour:
     - name: _ZWrite
       type: 2
   - name: Green
+    guid: 8b909a2f0b703364b93a0bb1984ecf04
     properties:
     - name: _Color
       type: 0
@@ -253,6 +258,7 @@ MonoBehaviour:
     - name: _ZWrite
       type: 2
   - name: LiberationSans SDF Material
+    guid: 8f586378b4e144a9851e7b34d9b748ee
     properties:
     - name: _FaceColor
       type: 0
@@ -325,6 +331,7 @@ MonoBehaviour:
     - name: _ColorMask
       type: 2
   - name: LiberationSans SDF Material
+    guid: 2e498d1c8094910479dc3e1b768306a4
     properties:
     - name: _FaceColor
       type: 0
@@ -397,6 +404,7 @@ MonoBehaviour:
     - name: _ColorMask
       type: 2
   - name: Font Material
+    guid: e3265ab4bf004d28a9537516768c1c75
     properties:
     - name: _MainTex
       type: 4

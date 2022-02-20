@@ -5,6 +5,7 @@ using Bayat.Core;
 using Bayat.Json.Serialization;
 
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Bayat.Json.Converters
 {
@@ -81,10 +82,41 @@ namespace Bayat.Json.Converters
             // Serialize main properties when there are no pre-defined properties available for this material
             else
             {
-                internalWriter.SerializeProperty(writer, "color", material.color);
-                internalWriter.SerializeProperty(writer, "mainTexture", material.mainTexture);
-                internalWriter.SerializeProperty(writer, "mainTextureOffset", material.mainTextureOffset);
-                internalWriter.SerializeProperty(writer, "mainTextureScale", material.mainTextureScale);
+                var serializableProperties = new List<JsonSerializedMaterialProperty>();
+                var shader = material.shader;
+                var count = shader.GetPropertyCount();
+                for (int i = 0; i < count; i++)
+                {
+                    var serializedProperty = new JsonSerializedMaterialProperty();
+                    var propertyName = shader.GetPropertyName(i);
+                    var propertyType = shader.GetPropertyType(i);
+                    serializedProperty.name = propertyName;
+                    switch (propertyType)
+                    {
+                        case ShaderPropertyType.Color:
+                            serializedProperty.value = material.GetColor(propertyName);
+                            serializedProperty.type = RuntimeMaterialPropertyType.Color;
+                            break;
+                        case ShaderPropertyType.Vector:
+                            serializedProperty.value = material.GetVector(propertyName);
+                            serializedProperty.type = RuntimeMaterialPropertyType.Vector;
+                            break;
+                        case ShaderPropertyType.Float:
+                            serializedProperty.value = material.GetFloat(propertyName);
+                            serializedProperty.type = RuntimeMaterialPropertyType.Float;
+                            break;
+                        case ShaderPropertyType.Range:
+                            serializedProperty.value = material.GetFloat(propertyName);
+                            serializedProperty.type = RuntimeMaterialPropertyType.Range;
+                            break;
+                        case ShaderPropertyType.Texture:
+                            serializedProperty.value = material.GetTexture(propertyName);
+                            serializedProperty.type = RuntimeMaterialPropertyType.Texture;
+                            break;
+                    }
+                    serializableProperties.Add(serializedProperty);
+                }
+                internalWriter.SerializeProperty(writer, MaterialPropertiesName, serializableProperties);
             }
         }
 

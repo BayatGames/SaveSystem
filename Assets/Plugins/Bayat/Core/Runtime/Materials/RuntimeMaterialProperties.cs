@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Bayat.Core
@@ -14,11 +15,14 @@ namespace Bayat.Core
 
         [SerializeField]
         private string name;
+        [HideInInspector]
+        [SerializeField]
+        private string guid;
         [SerializeField]
         private List<RuntimeMaterialProperty> properties = new List<RuntimeMaterialProperty>();
 
         /// <summary>
-        /// The material name.
+        /// Gets or sets the material name.
         /// </summary>
         public string Name
         {
@@ -33,7 +37,22 @@ namespace Bayat.Core
         }
 
         /// <summary>
-        /// The material properties.
+        /// Gets or sets the material GUID.
+        /// </summary>
+        public string Guid
+        {
+            get
+            {
+                return this.guid;
+            }
+            set
+            {
+                this.guid = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the material properties.
         /// </summary>
         public List<RuntimeMaterialProperty> Properties
         {

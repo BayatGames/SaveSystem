@@ -1,6 +1,7 @@
-﻿using Bayat.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Bayat.Json.Serialization;
 
 namespace Bayat.Json.Converters
 {

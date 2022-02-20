@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 #endif
 
+using Bayat.Core.Utilities;
+
 namespace Bayat.SaveSystem
 {
 
@@ -76,10 +78,20 @@ namespace Bayat.SaveSystem
         [SerializeField]
         protected LoadEvent loadEvent = LoadEvent.Start;
 
+        protected virtual void SortAutoSaves()
+        {
+            HierarchicalSorting.Sort(this.autoSaves);
+        }
+
         protected virtual void Reset()
         {
             FetchAutoSaves();
             this.settingsPreset = SaveSystemSettingsPreset.DefaultPreset;
+        }
+
+        protected virtual void OnValidate()
+        {
+            SortAutoSaves();
         }
 
         protected virtual void OnEnable()
@@ -158,6 +170,8 @@ namespace Bayat.SaveSystem
                 return;
             }
             this.autoSaves.Add(autoSave);
+
+            SortAutoSaves();
         }
 
         public virtual void RemoveAutoSave(AutoSave autoSave)
@@ -167,10 +181,14 @@ namespace Bayat.SaveSystem
                 return;
             }
             this.autoSaves.Remove(autoSave);
+
+            SortAutoSaves();
         }
 
         public virtual async void Save()
         {
+            SortAutoSaves();
+
             GameObject[] gameObjects = new GameObject[this.autoSaves.Count];
             for (int i = 0; i < this.autoSaves.Count; i++)
             {

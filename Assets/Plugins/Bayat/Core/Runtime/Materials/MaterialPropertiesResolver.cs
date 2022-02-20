@@ -12,7 +12,7 @@ namespace Bayat.Core
 #if BAYAT_DEVELOPER
     [CreateAssetMenu(menuName = "Bayat/Core/Material Properties Resolver")]
 #endif
-    public class MaterialPropertiesResolver : ScriptableObject
+    public class MaterialPropertiesResolver : ScriptableObject, ISerializationCallbackReceiver
     {
 
         private static MaterialPropertiesResolver current;
@@ -70,7 +70,8 @@ namespace Bayat.Core
         [SerializeField]
         protected List<RuntimeMaterialProperties> materialsProperties = new List<RuntimeMaterialProperties>();
 
-        protected Dictionary<string, RuntimeMaterialProperties> materialsLookup = new Dictionary<string, RuntimeMaterialProperties>();
+        protected Dictionary<string, RuntimeMaterialProperties> guidToProperties = new Dictionary<string, RuntimeMaterialProperties>();
+        protected Dictionary<Material, string> materialToGuid = new Dictionary<Material, string>();
 
         /// <summary>
         /// Gets the materials.
@@ -94,20 +95,53 @@ namespace Bayat.Core
             }
         }
 
-        public virtual Dictionary<string, RuntimeMaterialProperties> MaterialsLookup
+        public virtual Dictionary<Material, string> MaterialToGuid
         {
             get
             {
-                if (this.materialsLookup.Count != this.materials.Count)
+                if (this.materialToGuid.Count != this.materials.Count)
                 {
-                    this.materialsLookup.Clear();
+                    this.materialToGuid.Clear();
                     for (int i = 0; i < this.materials.Count; i++)
                     {
-                        this.materialsLookup.Add(this.materials[i].name, this.materialsProperties[i]);
+                        var material = this.materials[i];
+                        var properties = this.materialsProperties[i];
+                        this.materialToGuid.Add(material, properties.Guid);
                     }
                 }
-                return this.materialsLookup;
+                return this.materialToGuid;
             }
+        }
+
+        public virtual Dictionary<string, RuntimeMaterialProperties> GuidToProperties
+        {
+            get
+            {
+                if (this.guidToProperties.Count != this.materials.Count)
+                {
+                    this.guidToProperties.Clear();
+                    for (int i = 0; i < this.materials.Count; i++)
+                    {
+                        var properties = this.materialsProperties[i];
+                        this.guidToProperties.Add(properties.Guid, properties);
+                    }
+                }
+                return this.guidToProperties;
+            }
+        }
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+#if UNITY_EDITOR
+            // This is called before building or when things are being serialised before pressing play.
+            if (BuildPipeline.isBuildingPlayer || (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying))
+            {
+                CollectMaterials();
+            }
+#endif
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
         }
 
         public virtual void Reset()
@@ -168,6 +202,7 @@ namespace Bayat.Core
                             runtimeProperties = this.materialsProperties[index];
                         }
                     }
+                    runtimeProperties.Guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(material));
                     runtimeProperties.Name = material.name;
                     for (int j = 0; j < properties.Length; j++)
                     {
@@ -198,11 +233,35 @@ namespace Bayat.Core
         /// <returns>The material properties <see cref="RuntimeMaterialProperties"/></returns>
         public virtual RuntimeMaterialProperties GetMaterialProperties(Material material)
         {
+            string guid;
+
+            // If it is an instance material, then do a check using its name, if there are only 1 matchup the properties are returned, otherwise null
             if (material.name.EndsWith(" (Instance)", System.StringComparison.InvariantCultureIgnoreCase))
             {
-                this.MaterialsLookup.TryGetValue(material.name.Replace(" (Instance)", string.Empty), out var properties);
+                //var materialName = material.name.Replace(" (Instance)", string.Empty);
+
+                //var matches = this.materials.FindAll(original =>
+                //{
+                //    return original.name == materialName;
+                //});
+                //if (matches.Count > 0 && matches.Count < 2)
+                //{
+                //    var originalMaterial = matches[0];
+                //    this.MaterialToGuid.TryGetValue(originalMaterial, out guid);
+                //    this.GuidToProperties.TryGetValue(guid, out var properties);
+                //    return properties;
+                //}
+
+                // Return early, as the extra checks are unnecessary for an instance material
+                return null;
+            }
+
+            if (this.MaterialToGuid.TryGetValue(material, out guid))
+            {
+                this.GuidToProperties.TryGetValue(guid, out var properties);
                 return properties;
             }
+
             int index = this.materials.IndexOf(material);
             if (index == -1)
             {
