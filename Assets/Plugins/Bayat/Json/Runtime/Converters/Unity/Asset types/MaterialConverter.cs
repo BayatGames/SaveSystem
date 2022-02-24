@@ -82,6 +82,7 @@ namespace Bayat.Json.Converters
             // Serialize main properties when there are no pre-defined properties available for this material
             else
             {
+#if UNITY_2018_4_OR_NEWER
                 var serializableProperties = new List<JsonSerializedMaterialProperty>();
                 var shader = material.shader;
                 var count = shader.GetPropertyCount();
@@ -117,6 +118,7 @@ namespace Bayat.Json.Converters
                     serializableProperties.Add(serializedProperty);
                 }
                 internalWriter.SerializeProperty(writer, MaterialPropertiesName, serializableProperties);
+#endif
             }
         }
 
