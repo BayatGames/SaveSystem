@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -69,6 +70,18 @@ namespace Bayat.SaveSystem.Demos
             this.spawnedInstances.Clear();
             await SaveSystemAPI.LoadIntoAsync(this.identifierField.text, this.spawnedInstances);
             Debug.Log("Data loaded successfully");
+        }
+
+        public virtual void FetchSpawnedInstances()
+        {
+            for (int i = 0; i < this.container.childCount; i++)
+            {
+                var child = this.container.GetChild(i);
+                if (!this.spawnedInstances.Contains(child.gameObject))
+                {
+                    this.spawnedInstances.Add(child.gameObject);
+                }
+            }
         }
 
         public override void Delete()
