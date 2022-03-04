@@ -1,5 +1,7 @@
-﻿using Bayat.Json.Serialization;
-using System;
+﻿using System;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -10,14 +12,8 @@ namespace Bayat.Json.Converters
 
         public override object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, Type objectType, out bool exit)
         {
-            string name = reader.ReadProperty<string>();
             exit = false;
-            Shader shader = Shader.Find(name);
-            if (shader == null)
-            {
-                shader = Shader.Find("Diffuse");
-            }
-            return shader;
+            return null;
         }
 
         public override bool CanConvert(Type objectType)
