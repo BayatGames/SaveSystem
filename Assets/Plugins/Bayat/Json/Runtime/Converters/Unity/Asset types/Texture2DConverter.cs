@@ -1,5 +1,7 @@
-﻿using Bayat.Json.Serialization;
-using System;
+﻿using System;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -43,6 +45,7 @@ namespace Bayat.Json.Converters
                 TextureFormat format = internalReader.DeserializeProperty<TextureFormat>(reader);
                 int mipmapCount = reader.ReadProperty<int>();
                 instance = new Texture2D(width, height, format, mipmapCount > 1);
+                reader.ReadAndAssert();
             }
             foreach (string propertyName in GetProperties(reader, internalReader))
             {

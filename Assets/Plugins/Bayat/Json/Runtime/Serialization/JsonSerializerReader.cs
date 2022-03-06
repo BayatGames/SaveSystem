@@ -629,6 +629,10 @@ namespace Bayat.Json.Serialization
                         JsonObjectContract objectContract = (JsonObjectContract)contract;
                         object targetObject;
 
+                        JsonContract newContract = GetContractSafe(resolvedObjectType);
+                        var converter = GetConverter(newContract, null, null, null);
+                        var objectConverter = converter as Bayat.Json.Converters.ObjectJsonConverter;
+
                         // check that if type name handling is being used that the existing value is compatible with the specified type
                         if (existingValue != null && (resolvedObjectType == objectType || resolvedObjectType.IsAssignableFrom(existingValue.GetType())))
                         {
@@ -640,7 +644,14 @@ namespace Bayat.Json.Serialization
                         }
                         else
                         {
-                            targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, out createdFromNonDefaultCreator);
+                            if (objectConverter != null)
+                            {
+                                targetObject = objectConverter.Create(reader, this, objectContract, id, unityGuid, resolvedObjectType, out createdFromNonDefaultCreator);
+                            }
+                            else
+                            {
+                                targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, out createdFromNonDefaultCreator);
+                            }
                         }
 
                         if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
@@ -660,6 +671,11 @@ namespace Bayat.Json.Serialization
                         if (createdFromNonDefaultCreator)
                         {
                             return targetObject;
+                        }
+
+                        if (objectConverter != null)
+                        {
+                            return objectConverter.Populate(objectContract, reader, resolvedObjectType, targetObject, this);
                         }
 
                         return PopulateObject(targetObject, reader, objectContract, member, id);

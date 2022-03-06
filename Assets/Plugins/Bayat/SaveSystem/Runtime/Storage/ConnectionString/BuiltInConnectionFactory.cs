@@ -32,6 +32,14 @@ namespace Bayat.SaveSystem.Storage
                 return new PlayerPrefsStorage(encodingName, useBase64);
             }
 
+            if (connectionString.Prefix == "memory")
+            {
+                string encodingName = connectionString.Get("encoding", StorageBase.DefaultTextEncodingName, "text-encoding", "encoding-name");
+                bool useBase64 = connectionString.GetBoolean("usebase64", true, "use-base64");
+
+                return new MemoryStorage(encodingName, useBase64);
+            }
+
             return null;
         }
 
