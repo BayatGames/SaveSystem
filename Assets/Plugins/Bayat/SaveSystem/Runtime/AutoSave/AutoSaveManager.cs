@@ -15,7 +15,7 @@ namespace Bayat.SaveSystem
 {
 
     [AddComponentMenu("Bayat/Save System/Auto Save Manager")]
-    public class AutoSaveManager : MonoBehaviour
+    public class AutoSaveManager : MonoBehaviour, ISerializationCallbackReceiver
     {
 
         private static AutoSaveManager current;
@@ -52,6 +52,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// The predefined save event types for Auto Save.
         /// </summary>
+        [Obsolete("Use EventType instead.")]
         public enum SaveEventType
         {
 
@@ -101,6 +102,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// The predefined load event types for Auto Save.
         /// </summary>
+        [Obsolete("Use EventType instead.")]
         public enum LoadEventType
         {
 
@@ -128,6 +130,76 @@ namespace Bayat.SaveSystem
             /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneLoaded.html">SceneManager.sceneLoaded</see> event
             /// </summary>
             OnSceneLoaded
+        }
+
+        /// <summary>
+        /// A set of predefined event types.
+        /// </summary>
+        public enum EventType
+        {
+
+            /// <summary>
+            /// Manually manage the event.
+            /// </summary>
+            Manual,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Awake.html">Awake</see> event function
+            /// </summary>
+            Awake,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html">Start</see> event function
+            /// </summary>
+            Start,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDisable.html">OnDisable</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnDisable,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnEnable.html">OnEnable</see> event function
+            /// </summary>
+            OnEnable,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDestroy.html">OnDestroy</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnDestroy,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationQuit.html">OnApplicationQuit</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnApplicationQuit,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is more reliable on mobile devices, because it is called once the user goes out of the game, like the moment they want to close the game or app.
+            /// </remarks>
+            OnApplicationPause,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneLoaded.html">SceneManager.sceneLoaded</see> event
+            /// </summary>
+            OnSceneLoaded,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneUnloaded.html">SceneManager.sceneUnloaded</see> event
+            /// </summary>
+            OnSceneUnloaded
+
         }
 
         #region Events
@@ -166,16 +238,45 @@ namespace Bayat.SaveSystem
 
         #region Fields
 
+        [Tooltip("The storage identifier to save and load the data")]
         [SerializeField]
         protected string identifier = "autosave.dat";
+
+        [Tooltip("The settings preset to be used for all the Save System API calls")]
         [SerializeField]
         protected SaveSystemSettingsPreset settingsPreset;
+
+        [Tooltip("The list of auto saves to save and load")]
         [SerializeField]
         protected List<AutoSave> autoSaves = new List<AutoSave>();
+
+#pragma warning disable 0612, 0618
+        // To be removed in next patches
+        // Used for migration
+        [HideInInspector]
         [SerializeField]
         protected SaveEventType saveEvent = SaveEventType.OnApplicationQuit;
+        [HideInInspector]
         [SerializeField]
         protected LoadEventType loadEvent = LoadEventType.Start;
+
+        [HideInInspector]
+        [SerializeField]
+        protected bool migrated = false;
+#pragma warning restore 0612, 0618
+
+        [Tooltip("Specify when to save the data")]
+        [SerializeField]
+        protected EventType saveEventType = EventType.OnApplicationQuit;
+
+        [Tooltip("Specify when to load the data")]
+        [SerializeField]
+        protected EventType loadEventType = EventType.Start;
+
+        [Tooltip("Specify when to fetch new auto saves in the scene, like when the scene is loaded")]
+        [SerializeField]
+        protected EventType fetchEventType = EventType.Start;
+
         [SerializeField]
         protected UnityEvent savedEvent;
         [SerializeField]
@@ -216,29 +317,66 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// Gets or sets the predefined save event.
         /// </summary>
-        public virtual SaveEventType SaveEvent
+        public virtual EventType SaveEvent
         {
-            get { return this.saveEvent; }
-            set { this.saveEvent = value; }
+            get { return this.saveEventType; }
+            set { this.saveEventType = value; }
         }
 
         /// <summary>
         /// Gets or sets the predefined load event.
         /// </summary>
-        public virtual LoadEventType LoadEvent
+        public virtual EventType LoadEvent
         {
-            get { return this.loadEvent; }
-            set { this.loadEvent = value; }
+            get { return this.loadEventType; }
+            set { this.loadEventType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the predefined fetch event.
+        /// </summary>
+        public virtual EventType FetchEvent
+        {
+            get { return this.fetchEventType; }
+            set { this.fetchEventType = value; }
         }
 
         #endregion
 
         #region Unity Messages
 
+        public void OnBeforeSerialize()
+        {
+
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if (this.migrated)
+            {
+                return;
+            }
+
+            // Migrate the enums from the old fields
+            EventType eventType;
+            if (Enum.TryParse(this.saveEvent.ToString(), out eventType))
+            {
+                this.saveEventType = eventType;
+                this.migrated = true;
+            }
+
+            if (Enum.TryParse(this.loadEvent.ToString(), out eventType))
+            {
+                this.loadEventType = eventType;
+                this.migrated = true;
+            }
+        }
+
         protected virtual void Reset()
         {
-            FetchAutoSaves();
             this.settingsPreset = SaveSystemSettingsPreset.DefaultPreset;
+
+            FetchAutoSaves();
         }
 
         protected virtual void OnValidate()
@@ -246,67 +384,84 @@ namespace Bayat.SaveSystem
             SortAutoSaves();
         }
 
+        protected virtual void Awake()
+        {
+            HandleEventType(EventType.Awake);
+        }
+
+        protected virtual void Start()
+        {
+            HandleEventType(EventType.Start);
+        }
+
         protected virtual void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.sceneUnloaded += OnSceneUnloaded;
-            if (this.loadEvent == LoadEventType.OnEnable)
-            {
-                Load();
-            }
+
+            HandleEventType(EventType.OnEnable);
         }
 
         protected virtual void OnDisable()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.sceneUnloaded -= OnSceneUnloaded;
+
+            HandleEventType(EventType.OnDisable);
         }
 
         protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (this.loadEvent == LoadEventType.OnSceneLoaded)
-            {
-                Load();
-            }
+            HandleEventType(EventType.OnSceneLoaded);
         }
 
         protected virtual void OnSceneUnloaded(Scene scene)
         {
-            if (this.saveEvent == SaveEventType.OnSceneUnloaded)
-            {
-                Save();
-            }
-        }
-
-        protected virtual void Start()
-        {
-            if (this.loadEvent == LoadEventType.Start)
-            {
-                Load();
-            }
-        }
-
-        protected virtual void Awake()
-        {
-            if (this.loadEvent == LoadEventType.Awake)
-            {
-                Load();
-            }
+            HandleEventType(EventType.OnSceneUnloaded);
         }
 
         protected virtual void OnApplicationQuit()
         {
-            if (this.saveEvent == SaveEventType.OnApplicationQuit)
-            {
-                Save();
-            }
+            HandleEventType(EventType.OnApplicationQuit);
         }
 
         protected virtual void OnApplicationPause(bool paused)
         {
-            if ((saveEvent == SaveEventType.OnApplicationPause || (Application.isMobilePlatform && saveEvent == SaveEventType.OnApplicationQuit)) && paused)
+            if (!paused)
+            {
+                return;
+            }
+
+            if (Application.isMobilePlatform)
+            {
+                if (this.saveEventType == EventType.OnApplicationQuit)
+                {
+                    HandleEventType(EventType.OnApplicationQuit);
+                }
+                else
+                {
+                    HandleEventType(EventType.OnApplicationPause);
+                }
+            }
+            else
+            {
+                HandleEventType(EventType.OnApplicationPause);
+            }
+        }
+
+        protected virtual void HandleEventType(EventType type)
+        {
+            if (this.fetchEventType == type)
+            {
+                FetchAutoSaves();
+            }
+            if (this.saveEventType == type)
             {
                 Save();
+            }
+            if (this.loadEventType == type)
+            {
+                Load();
             }
         }
 
@@ -327,7 +482,23 @@ namespace Bayat.SaveSystem
         /// </summary>
         public virtual void FetchAutoSaves()
         {
-            this.autoSaves = new List<AutoSave>(FindObjectsOfType<AutoSave>());
+            if (this.autoSaves == null)
+            {
+                this.autoSaves = new List<AutoSave>();
+            }
+
+            var fetchedAutoSaves = FindObjectsOfType<AutoSave>();
+            for (int i = 0; i < fetchedAutoSaves.Length; i++)
+            {
+                var fetchedAutoSave = fetchedAutoSaves[i];
+                if (!this.autoSaves.Contains(fetchedAutoSave))
+                {
+                    this.autoSaves.Add(fetchedAutoSave);
+                }
+            }
+
+            // Resort auto saves
+            SortAutoSaves();
         }
 
         /// <summary>
@@ -432,7 +603,7 @@ namespace Bayat.SaveSystem
 
         protected virtual void OnLoading()
         {
-            this.Loading?.Invoke(this, null);
+            Loading?.Invoke(this, null);
         }
 
         protected virtual void OnLoaded()
@@ -469,7 +640,7 @@ namespace Bayat.SaveSystem
 
         protected virtual void OnDeleting()
         {
-            this.Deleting?.Invoke(this, null);
+            Deleting?.Invoke(this, null);
         }
 
         protected virtual void OnDeleted()

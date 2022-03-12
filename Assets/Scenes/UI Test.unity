@@ -603,6 +603,10 @@ MonoBehaviour:
   - {fileID: 380988205}
   saveEvent: 3
   loadEvent: 3
+  migrated: 1
+  saveEventType: 6
+  loadEventType: 2
+  fetchEventType: 2
   savedEvent:
     m_PersistentCalls:
       m_Calls: []
