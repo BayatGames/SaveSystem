@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 374254176}
   - component: {fileID: 374254177}
   - component: {fileID: 374254178}
+  - component: {fileID: 374254179}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -204,6 +205,24 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 374254175}
   m_Enabled: 1
+--- !u!114 &374254179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374254175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d50e455dac0ec641a84095c2142f046, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serializeChildren: 0
+  serializeComponents: 0
+  serializeExcludedChildren: 0
+  serializeExcludedComponents: 0
+  excludedChildren: []
+  excludedComponents: []
 --- !u!1 &380988204
 GameObject:
   m_ObjectHideFlags: 0
@@ -553,6 +572,7 @@ MonoBehaviour:
     - 5bf8eedcaf804f19b4338db83c463182
     - af1884e045a2410b924b76455cdcf60a
     - 47615c90f11d4b868f77d2b60574c421
+    - 1de6b29ff87b40878316e5a55a687a43
     _Values:
     - {fileID: 374254175}
     - {fileID: 374254178}
@@ -580,6 +600,7 @@ MonoBehaviour:
     - {fileID: 1861340181}
     - {fileID: 1861340184}
     - {fileID: 1861340180}
+    - {fileID: 374254179}
   availableDependencies: []
   mode: 1
   updateOnSceneSaving: 1

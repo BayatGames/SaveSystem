@@ -23,7 +23,7 @@ MonoBehaviour:
   floatFormatHandling: 0
   floatParseHandling: 0
   formatterAssemblyStyle: 0
-  formatting: 0
+  formatting: 1
   metadataPropertyHandling: 0
   missingMemberHandling: 0
   nullValueHandling: 0
