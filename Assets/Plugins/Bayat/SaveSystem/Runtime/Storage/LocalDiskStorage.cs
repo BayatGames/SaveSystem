@@ -77,7 +77,7 @@ namespace Bayat.SaveSystem.Storage
             {
                 // Ensure directory exists
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-                FileStream file = File.Open(fullPath + this.TemporarySuffix, FileMode.Create);
+                FileStream file = File.Open(fullPath + TemporarySuffix, FileMode.Create);
                 FileStorageStream storageStream = new FileStorageStream(fullPath, identifier, file);
                 return Task.FromResult<IStorageStream>(storageStream);
             }
@@ -116,7 +116,7 @@ namespace Bayat.SaveSystem.Storage
             await tempFile.RenameAsync(Path.GetFileName(stream.Identifier), NameCollisionOption.ReplaceExisting);
 #else
             File.Delete(fileStream.FullPath);
-            File.Move(fileStream.FullPath + this.TemporarySuffix, fileStream.FullPath);
+            File.Move(fileStream.FullPath + TemporarySuffix, fileStream.FullPath);
             return Task.CompletedTask;
 #endif
         }
@@ -201,7 +201,7 @@ namespace Bayat.SaveSystem.Storage
                     {
                         stream.SetLength(0);
                     }
-                    using (TextWriter writer = new StreamWriter(stream, this.TextEncoding))
+                    using (TextWriter writer = new StreamWriter(stream, TextEncoding))
                     {
                         writer.Write(data);
                         writer.Flush();
@@ -220,10 +220,12 @@ namespace Bayat.SaveSystem.Storage
                 }
                 throw;
             }
+#if !UNITY_IOS
             if (IsMetaIdentifier(identifier))
             {
                 File.SetAttributes(fullPath, FileAttributes.Hidden);
             }
+#endif
             return Task.CompletedTask;
 #endif
         }
@@ -319,10 +321,12 @@ namespace Bayat.SaveSystem.Storage
                 }
                 throw;
             }
+#if !UNITY_IOS
             if (IsMetaIdentifier(identifier))
             {
                 File.SetAttributes(fullPath, FileAttributes.Hidden);
             }
+#endif
             return Task.CompletedTask;
 #endif
         }
@@ -684,7 +688,7 @@ namespace Bayat.SaveSystem.Storage
 
         public override Task<string[]> ListAll()
         {
-            return List(this.BasePath, new StorageListOptions()
+            return List(BasePath, new StorageListOptions()
             {
                 Recurse = true
             });
@@ -701,7 +705,7 @@ namespace Bayat.SaveSystem.Storage
             {
                 return identifier;
             }
-            return Path.Combine(this.BasePath, identifier);
+            return Path.Combine(BasePath, identifier);
         }
 
         /// <summary>
