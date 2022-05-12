@@ -1,9 +1,11 @@
-﻿using Bayat.SaveSystem.Security;
-using Bayat.SaveSystem.Storage;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+
+using Bayat.SaveSystem.Security;
+using Bayat.SaveSystem.Storage;
+
 using UnityEngine;
 
 namespace Bayat.SaveSystem
@@ -515,6 +517,11 @@ namespace Bayat.SaveSystem
                     {
                         isEncrypted = metaData.Get<bool>("Encrypted");
                     }
+                }
+                if (isEncrypted)
+                {
+                    cryptoStream = encryption.GetReadStream(stream, password);
+                    underlyingStream = cryptoStream.UnderlyingCryptoStream;
                 }
                 if (isEncrypted)
                 {
