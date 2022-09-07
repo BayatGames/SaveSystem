@@ -1,6 +1,8 @@
-﻿using Bayat.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -43,6 +45,31 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("layer", gameObject.layer);
             writer.WriteProperty("hideFlags", gameObject.hideFlags);
 
+            bool serializeChildren = true;
+            if (serializationHandler != null)
+            {
+                serializeChildren = serializationHandler.SerializeChildren;
+            }
+            if (serializeChildren)
+            {
+                writer.WritePropertyName("children");
+                writer.WriteStartArray();
+                for (int i = 0; i < gameObject.transform.childCount; i++)
+                {
+                    Transform child = gameObject.transform.GetChild(i);
+                    bool shouldSerialize = true;
+                    if (serializationHandler != null)
+                    {
+                        shouldSerialize = serializationHandler.ShouldSerializeChild(child);
+                    }
+                    if (shouldSerialize)
+                    {
+                        internalWriter.Serialize(writer, child.gameObject);
+                    }
+                }
+                writer.WriteEndArray();
+            }
+
             bool serializeComponents = true;
             if (serializationHandler != null)
             {
@@ -72,31 +99,6 @@ namespace Bayat.Json.Converters
                 }
                 writer.WriteEndArray();
             }
-
-            bool serializeChildren = true;
-            if (serializationHandler != null)
-            {
-                serializeChildren = serializationHandler.SerializeChildren;
-            }
-            if (serializeChildren)
-            {
-                writer.WritePropertyName("children");
-                writer.WriteStartArray();
-                for (int i = 0; i < gameObject.transform.childCount; i++)
-                {
-                    Transform child = gameObject.transform.GetChild(i);
-                    bool shouldSerialize = true;
-                    if (serializationHandler != null)
-                    {
-                        shouldSerialize = serializationHandler.ShouldSerializeChild(child);
-                    }
-                    if (shouldSerialize)
-                    {
-                        internalWriter.Serialize(writer, child.gameObject);
-                    }
-                }
-                writer.WriteEndArray();
-            }
         }
 
         public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)
@@ -122,6 +124,35 @@ namespace Bayat.Json.Converters
                     break;
                 case "hideFlags":
                     gameObject.hideFlags = (HideFlags)reader.ReadAsInt32().GetValueOrDefault();
+                    break;
+                case "children":
+
+                    // Skip property name
+                    reader.ReadAndAssert();
+
+                    // Skipy array start
+                    reader.ReadAndAssert();
+
+                    finished = false;
+                    do
+                    {
+                        switch (reader.TokenType)
+                        {
+                            case JsonToken.EndArray:
+                                finished = true;
+                                break;
+                            default:
+                                if (reader.TokenType != JsonToken.StartObject)
+                                {
+                                    reader.Read();
+                                    continue;
+                                }
+                                GameObject child = internalReader.Deserialize<GameObject>(reader);
+                                child.transform.SetParent(gameObject.transform);
+                                //child.transform.parent = gameObject.transform;
+                                break;
+                        }
+                    } while (!finished);
                     break;
                 case "components":
 
@@ -158,35 +189,6 @@ namespace Bayat.Json.Converters
                                     component = gameObject.AddComponent(componentType);
                                 }
                                 internalReader.DeserializeInto(reader, componentType, component, false);
-                                break;
-                        }
-                    } while (!finished);
-                    break;
-                case "children":
-
-                    // Skip property name
-                    reader.ReadAndAssert();
-
-                    // Skipy array start
-                    reader.ReadAndAssert();
-
-                    finished = false;
-                    do
-                    {
-                        switch (reader.TokenType)
-                        {
-                            case JsonToken.EndArray:
-                                finished = true;
-                                break;
-                            default:
-                                if (reader.TokenType != JsonToken.StartObject)
-                                {
-                                    reader.Read();
-                                    continue;
-                                }
-                                GameObject child = internalReader.Deserialize<GameObject>(reader);
-                                child.transform.SetParent(gameObject.transform);
-                                //child.transform.parent = gameObject.transform;
                                 break;
                         }
                     } while (!finished);

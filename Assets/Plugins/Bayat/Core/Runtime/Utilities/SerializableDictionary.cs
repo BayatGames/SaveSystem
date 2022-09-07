@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace Bayat.Core.Utilities
@@ -30,7 +31,7 @@ namespace Bayat.Core.Utilities
         // load dictionary from lists
         public void OnAfterDeserialize()
         {
-            this.Clear();
+            Clear();
 
             if (_Keys.Count != _Values.Count)
                 throw new System.Exception(string.Format("there are {0} keys and {1} values after deserialization. Make sure that both key and value types are serializable.", _Keys.Count, _Values.Count));
@@ -38,7 +39,16 @@ namespace Bayat.Core.Utilities
             for (int i = 0; i < _Keys.Count; i++)
             {
                 if (_Keys[i] != null)
-                    this.Add(_Keys[i], _Values[i]);
+                {
+                    try
+                    {
+                        Add(_Keys[i], _Values[i]);
+                    }
+                    catch
+                    {
+                        // Skip null occurrences in the GetHashCode
+                    }
+                }
             }
 
             _Keys = null;

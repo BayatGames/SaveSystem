@@ -64,7 +64,7 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("wordWrappingRatios", instance.wordWrappingRatios);
             internalWriter.SerializeProperty(writer, "overflowMode", instance.overflowMode);
             internalWriter.SerializeProperty(writer, "linkedTextComponent", instance.linkedTextComponent);
-            writer.WriteProperty("isLinkedTextComponent", instance.isLinkedTextComponent);
+            //writer.WriteProperty("isLinkedTextComponent", instance.isLinkedTextComponent);
             writer.WriteProperty("enableKerning", instance.enableKerning);
             writer.WriteProperty("extraPadding", instance.extraPadding);
             writer.WriteProperty("richText", instance.richText);
@@ -72,7 +72,7 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("isOverlay", instance.isOverlay);
             writer.WriteProperty("isOrthographic", instance.isOrthographic);
             writer.WriteProperty("enableCulling", instance.enableCulling);
-            writer.WriteProperty("ignoreRectMaskCulling", instance.ignoreRectMaskCulling);
+            //writer.WriteProperty("ignoreRectMaskCulling", instance.ignoreRectMaskCulling);
             writer.WriteProperty("ignoreVisibility", instance.ignoreVisibility);
             internalWriter.SerializeProperty(writer, "horizontalMapping", instance.horizontalMapping);
             internalWriter.SerializeProperty(writer, "verticalMapping", instance.verticalMapping);
@@ -217,9 +217,9 @@ namespace Bayat.Json.Converters
                 case "linkedTextComponent":
                     instance.linkedTextComponent = internalReader.DeserializeProperty<TMPro.TMP_Text>(reader);
                     break;
-                case "isLinkedTextComponent":
-                    instance.isLinkedTextComponent = reader.ReadProperty<System.Boolean>();
-                    break;
+                //case "isLinkedTextComponent":
+                //    instance.isLinkedTextComponent = reader.ReadProperty<System.Boolean>();
+                //    break;
                 case "enableKerning":
                     instance.enableKerning = reader.ReadProperty<System.Boolean>();
                     break;
@@ -241,9 +241,9 @@ namespace Bayat.Json.Converters
                 case "enableCulling":
                     instance.enableCulling = reader.ReadProperty<System.Boolean>();
                     break;
-                case "ignoreRectMaskCulling":
-                    instance.ignoreRectMaskCulling = reader.ReadProperty<System.Boolean>();
-                    break;
+                //case "ignoreRectMaskCulling":
+                //    instance.ignoreRectMaskCulling = reader.ReadProperty<System.Boolean>();
+                //    break;
                 case "ignoreVisibility":
                     instance.ignoreVisibility = reader.ReadProperty<System.Boolean>();
                     break;

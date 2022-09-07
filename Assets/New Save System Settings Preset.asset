@@ -18,5 +18,5 @@ MonoBehaviour:
   useEncryption: 0
   password: 
   ecryptionAlgorithmName: aes
-  serializerSettingsPreset: {fileID: 11400000, guid: e5a95b54263d53f4a937ad6fe8fa11e2,
+  serializerSettingsPreset: {fileID: 11400000, guid: 7441c254f820f8e4ebb8e4e27fc94e7e,
     type: 2}
