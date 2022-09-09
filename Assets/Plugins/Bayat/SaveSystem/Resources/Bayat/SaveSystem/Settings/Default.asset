@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   storageConnectionString: disk://path={0}
-  useMetaData: 0
-  useCatalog: 0
+  useMetaData: 1
+  useCatalog: 1
   useEncryption: 1
   password: hello-world
   ecryptionAlgorithmName: aes
