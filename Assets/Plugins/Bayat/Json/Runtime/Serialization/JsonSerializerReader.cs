@@ -518,6 +518,7 @@ namespace Bayat.Json.Serialization
             string unityGuid;
             Type resolvedObjectType = objectType;
             UnityEngine.Object unityObject = null;
+            UnityEngine.GameObject unityPrefab = null;
 
             if (this.Serializer.MetadataPropertyHandling == MetadataPropertyHandling.Ignore)
             {
@@ -547,8 +548,12 @@ namespace Bayat.Json.Serialization
                 }
 
                 object newValue;
-                if (ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject))
+                if (ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
                 {
+                    if (unityPrefab != null)
+                    {
+                        unityObject = UnityEngine.Object.Instantiate(unityPrefab);
+                    }
                     if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
                     {
                         SceneReferenceResolver.Current.Add(unityObject, unityGuid);
@@ -583,8 +588,12 @@ namespace Bayat.Json.Serialization
             {
                 reader.ReadAndAssert();
                 object newValue;
-                if (ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject))
+                if (ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
                 {
+                    if (unityPrefab != null)
+                    {
+                        unityObject = UnityEngine.Object.Instantiate(unityPrefab);
+                    }
                     if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
                     {
                         SceneReferenceResolver.Current.Add(unityObject, unityGuid);
@@ -627,30 +636,38 @@ namespace Bayat.Json.Serialization
                     {
                         bool createdFromNonDefaultCreator = false;
                         JsonObjectContract objectContract = (JsonObjectContract)contract;
-                        object targetObject;
+                        object targetObject = null;
 
                         JsonContract newContract = GetContractSafe(resolvedObjectType);
                         var converter = GetConverter(newContract, null, null, null);
                         var objectConverter = converter as Bayat.Json.Converters.ObjectJsonConverter;
 
+                        if (unityPrefab != null)
+                        {
+                            targetObject = UnityEngine.Object.Instantiate(unityPrefab);
+                        }
+
                         // check that if type name handling is being used that the existing value is compatible with the specified type
-                        if (existingValue != null && (resolvedObjectType == objectType || resolvedObjectType.IsAssignableFrom(existingValue.GetType())))
+                        if (targetObject == null)
                         {
-                            targetObject = existingValue;
-                        }
-                        else if (unityObject != null)
-                        {
-                            targetObject = unityObject;
-                        }
-                        else
-                        {
-                            if (objectConverter != null)
+                            if (existingValue != null && (resolvedObjectType == objectType || resolvedObjectType.IsAssignableFrom(existingValue.GetType())))
                             {
-                                targetObject = objectConverter.Create(reader, this, objectContract, id, unityGuid, resolvedObjectType, out createdFromNonDefaultCreator);
+                                targetObject = existingValue;
+                            }
+                            else if (unityObject != null)
+                            {
+                                targetObject = unityObject;
                             }
                             else
                             {
-                                targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, out createdFromNonDefaultCreator);
+                                if (objectConverter != null)
+                                {
+                                    targetObject = objectConverter.Create(reader, this, objectContract, id, unityGuid, resolvedObjectType, out createdFromNonDefaultCreator);
+                                }
+                                else
+                                {
+                                    targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, out createdFromNonDefaultCreator);
+                                }
                             }
                         }
 
@@ -778,16 +795,27 @@ namespace Bayat.Json.Serialization
             throw JsonSerializationException.Create(reader, message);
         }
 
-        internal bool ReadMetadataPropertiesToken(JTokenReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject)
+        internal bool ReadMetadataPropertiesToken(JTokenReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab)
         {
             id = null;
             newValue = null;
             unityObject = null;
+            unityPrefab = null;
             unityGuid = null;
 
             if (reader.TokenType == JsonToken.StartObject)
             {
                 JObject current = (JObject)reader.CurrentToken;
+
+                JToken unityPrefabRefToken = current[JsonTypeReflector.UnityPrefabRefPropertyName];
+                if (unityPrefabRefToken != null)
+                {
+                    var unityPrefabGuid = (string)unityPrefabRefToken;
+                    if (PrefabReferenceResolver.Current != null)
+                    {
+                        unityPrefab = PrefabReferenceResolver.Current.Get(unityPrefabGuid) as UnityEngine.GameObject;
+                    }
+                }
 
                 JToken unityRefToken = current[JsonTypeReflector.UnityRefPropertyName];
                 if (unityRefToken != null)
@@ -901,11 +929,12 @@ namespace Bayat.Json.Serialization
             return false;
         }
 
-        internal bool ReadMetadataProperties(JsonReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject)
+        internal bool ReadMetadataProperties(JsonReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab)
         {
             id = null;
             newValue = null;
             unityObject = null;
+            unityPrefab = null;
             unityGuid = null;
 
             if (reader.TokenType == JsonToken.PropertyName)
@@ -975,6 +1004,19 @@ namespace Bayat.Json.Serialization
                             reader.ReadAndAssert();
 
                             id = (reader.Value != null) ? reader.Value.ToString() : null;
+
+                            reader.ReadAndAssert();
+                            metadataProperty = true;
+                        }
+                        else if (string.Equals(propertyName, JsonTypeReflector.UnityPrefabRefPropertyName, StringComparison.Ordinal))
+                        {
+                            reader.ReadAndAssert();
+
+                            var unityPrefabGuid = (reader.Value != null) ? reader.Value.ToString() : null;
+                            if (PrefabReferenceResolver.Current != null)
+                            {
+                                unityPrefab = PrefabReferenceResolver.Current.Get(unityPrefabGuid) as UnityEngine.GameObject;
+                            }
 
                             reader.ReadAndAssert();
                             metadataProperty = true;
@@ -2839,6 +2881,7 @@ namespace Bayat.Json.Serialization
                 {
                     case JsonTypeReflector.IdPropertyName:
                     case JsonTypeReflector.UnityRefPropertyName:
+                    case JsonTypeReflector.UnityPrefabRefPropertyName:
                     case JsonTypeReflector.RefPropertyName:
                     case JsonTypeReflector.TypePropertyName:
                     case JsonTypeReflector.ArrayValuesPropertyName:

@@ -148,7 +148,7 @@ namespace Bayat.Json.Converters
                                     continue;
                                 }
                                 GameObject child = internalReader.Deserialize<GameObject>(reader);
-                                child.transform.SetParent(gameObject.transform);
+                                child.transform.SetParent(gameObject.transform, true);
                                 //child.transform.parent = gameObject.transform;
                                 break;
                         }

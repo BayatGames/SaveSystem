@@ -15,7 +15,7 @@ MonoBehaviour:
   storageConnectionString: disk://path={0}
   useMetaData: 1
   useCatalog: 1
-  useEncryption: 1
+  useEncryption: 0
   password: hello-world
   ecryptionAlgorithmName: aes
   serializerSettingsPreset: {fileID: 11400000, guid: e5a95b54263d53f4a937ad6fe8fa11e2,

@@ -27,8 +27,14 @@ namespace Bayat.Json.Converters
             //internalWriter.SerializeProperty(writer, "parent", instance.parent);
             if (SceneReferenceResolver.Current != null)
             {
-                var unityGuid = SceneReferenceResolver.Current.Get(instance.parent);
-                writer.WriteProperty("parentRef", unityGuid);
+                if (instance.parent != null)
+                {
+                    var unityGuid = SceneReferenceResolver.Current.Get(instance.parent);
+                    if (!string.IsNullOrEmpty(unityGuid))
+                    {
+                        writer.WriteProperty("parentRef", unityGuid);
+                    }
+                }
             }
             internalWriter.SerializeProperty(writer, "position", instance.position);
             internalWriter.SerializeProperty(writer, "rotation", instance.rotation);
@@ -53,7 +59,7 @@ namespace Bayat.Json.Converters
                         var parent = (UnityEngine.Transform)SceneReferenceResolver.Current.Get(unityGuid);
                         if (parent != null)
                         {
-                            instance.parent = parent;
+                            instance.SetParent(parent, true);
                         }
                     }
                     break;

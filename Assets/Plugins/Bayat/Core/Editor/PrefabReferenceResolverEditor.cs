@@ -7,11 +7,11 @@ using UnityEngine;
 namespace Bayat.Core
 {
 
-    [CustomEditor(typeof(AssetReferenceResolver), true)]
-    public class AssetReferenceResolverEditor : Editor
+    [CustomEditor(typeof(PrefabReferenceResolver), true)]
+    public class PrefabReferenceResolverEditor : Editor
     {
 
-        protected AssetReferenceResolver assetReferenceResolver;
+        protected PrefabReferenceResolver prefabReferenceResolver;
         protected SerializedProperty mode;
         protected SerializedProperty refreshDependenciesTimeoutInSeconds;
         protected SerializedProperty ignoredTags;
@@ -20,7 +20,7 @@ namespace Bayat.Core
 
         private void OnEnable()
         {
-            this.assetReferenceResolver = (AssetReferenceResolver)target;
+            this.prefabReferenceResolver = (PrefabReferenceResolver)target;
             this.mode = serializedObject.FindProperty("mode");
             this.refreshDependenciesTimeoutInSeconds = serializedObject.FindProperty("refreshDependenciesTimeoutInSeconds");
             this.ignoredTags = serializedObject.FindProperty("ignoredTags");
@@ -30,7 +30,7 @@ namespace Bayat.Core
         public override void OnInspectorGUI()
         {
             //base.OnInspectorGUI();
-            if (this.assetReferenceResolver == null)
+            if (this.prefabReferenceResolver == null)
             {
                 return;
             }
@@ -42,34 +42,34 @@ namespace Bayat.Core
             EditorGUILayout.PropertyField(this.ignoredTags);
             EditorGUILayout.PropertyField(this.ignoreStatic);
 
-            EditorGUI.BeginDisabledGroup(this.assetReferenceResolver.Mode == ReferenceResolverMode.Manual);
+            EditorGUI.BeginDisabledGroup(this.prefabReferenceResolver.Mode == ReferenceResolverMode.Manual);
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.PropertyField(this.refreshDependenciesTimeoutInSeconds);
 
-            GUILayout.Label(string.Format("{0} references", this.assetReferenceResolver.GuidToReference.Count), EditorStyles.boldLabel);
+            GUILayout.Label(string.Format("{0} references", this.prefabReferenceResolver.GuidToReference.Count), EditorStyles.boldLabel);
 
             if (GUILayout.Button("Open Reference Manager"))
             {
-                new AssetReferenceManagerWindow().Show();
+                new PrefabReferenceManagerWindow().Show();
             }
 
             if (GUILayout.Button("Refresh References"))
             {
-                this.assetReferenceResolver.RefreshDependencies();
+                this.prefabReferenceResolver.RefreshDependencies();
             }
 
             if (GUILayout.Button("Remove Invalid References"))
             {
-                this.assetReferenceResolver.RemoveInvalidReferences();
+                this.prefabReferenceResolver.RemoveInvalidReferences();
             }
 
             if (GUILayout.Button("Reset"))
             {
-                if (EditorUtility.DisplayDialog("Reset Asset Reference Database?", "This action will reset whole asset reference database and used GUIDs which makes the saved GUIDs obsolete, so there will be problems when loading previously saved data using this database.\n\nProceed at your own risk.", "Reset", "Cancel"))
+                if (EditorUtility.DisplayDialog("Reset Prefab Reference Database?", "This action will reset whole prefab reference database and used GUIDs which makes the saved GUIDs obsolete, so there will be problems when loading previously saved data using this database.\n\nProceed at your own risk.", "Reset", "Cancel"))
                 {
-                    this.assetReferenceResolver.GuidToReference.Clear();
-                    this.assetReferenceResolver.ReferenceToGuid.Clear();
-                    this.assetReferenceResolver.Reset();
+                    this.prefabReferenceResolver.GuidToReference.Clear();
+                    this.prefabReferenceResolver.ReferenceToGuid.Clear();
+                    this.prefabReferenceResolver.Reset();
                 }
             }
 

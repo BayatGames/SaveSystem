@@ -792,7 +792,8 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: BAYAT_DEVELOPER
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
