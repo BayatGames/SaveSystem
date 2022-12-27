@@ -18,9 +18,7 @@ MonoBehaviour:
   guids: []
   prefabs: []
   guidToReference:
-    _Keys:
-    - bddda58ded6144bb9119708c9794b993
-    _Values:
-    - {fileID: 1525146328317604, guid: b20a479393470b84b9655ceaa2c7ab88, type: 3}
+    _Keys: []
+    _Values: []
   mode: 1
   refreshDependenciesTimeoutInSeconds: 2
