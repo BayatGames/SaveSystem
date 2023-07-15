@@ -188,7 +188,7 @@ namespace Bayat.Json
                     this.assembliesSearchText = searchText;
                     break;
             }
-            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSearchCancelButton")))
             {
                 // Remove focus if cleared
                 switch (this.selectedTabIndex)
