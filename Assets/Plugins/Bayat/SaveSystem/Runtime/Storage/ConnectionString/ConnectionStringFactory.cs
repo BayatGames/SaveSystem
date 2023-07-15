@@ -42,7 +42,7 @@ namespace Bayat.SaveSystem.Storage
             for (int i = 0; i < assemblies.Length; i++)
             {
                 Assembly assembly = assemblies[i];
-                Type[] types = assembly.GetTypes();
+                Type[] types = assembly.GetLoadableTypes().ToArray();
                 for (int j = 0; j < types.Length; j++)
                 {
                     Type type = types[j];
@@ -57,6 +57,18 @@ namespace Bayat.SaveSystem.Storage
                 }
             }
             return factories;
+        }
+
+        private static Type[] GetLoadableTypes(this Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(t => t != null).ToArray();
+            }
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+
 using UnityEngine;
 
 namespace Bayat.Core
@@ -19,7 +20,7 @@ namespace Bayat.Core
 
         static BayatEditorStyles()
         {
-            toolbarSearchField = GetStyle("ToolbarSeachTextField");
+            toolbarSearchField = new GUIStyle(EditorStyles.toolbarSearchField);
         }
 
         public static GUIStyle GetStyle(string styleName)

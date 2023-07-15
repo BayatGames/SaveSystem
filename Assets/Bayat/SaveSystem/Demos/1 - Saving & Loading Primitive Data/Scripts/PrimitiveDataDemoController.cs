@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,11 +14,9 @@ namespace Bayat.SaveSystem.Demos
         [SerializeField]
         protected InputField dataField;
 
-        public override async void Save()
+        public override void Save()
         {
-            Debug.Log("Saving...");
-            await SaveSystemAPI.SaveAsync(this.identifierField.text, this.dataField.text);
-            Debug.Log("Saved successfully.");
+            SaveSystemAPI.SaveAsync(this.identifierField.text, this.dataField.text);
         }
 
         public override async void Load()
