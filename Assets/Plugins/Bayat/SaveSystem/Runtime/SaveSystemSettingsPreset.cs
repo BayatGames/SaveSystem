@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -58,6 +59,8 @@ namespace Bayat.SaveSystem
         protected string ecryptionAlgorithmName = SaveSystemSymmetricEncryption.DefaultAlgorithmName;
         [SerializeField]
         protected JsonSerializerSettingsPreset serializerSettingsPreset;
+        [SerializeField]
+        protected bool logExceptions = true;
 
         protected SaveSystemSettings customSettings;
 
@@ -103,6 +106,7 @@ namespace Bayat.SaveSystem
             settings.UseEncryption = this.useEncryption;
             settings.EncryptionAlgorithm = new SaveSystemSymmetricEncryption(this.ecryptionAlgorithmName);
             settings.Password = this.password;
+            settings.LogExceptions = this.logExceptions;
         }
 
     }
