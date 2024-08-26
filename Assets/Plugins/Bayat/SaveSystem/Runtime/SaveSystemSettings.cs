@@ -49,6 +49,11 @@ namespace Bayat.SaveSystem
         /// </summary>
         public static readonly JsonSerializerSettings DefaultJsonSerializerSettings;
 
+        /// <summary>
+        /// The default log exceptions.
+        /// </summary>
+        public static bool DefaultLogExceptions = true;
+
         protected IStorage storage = DefaultStorage;
         protected bool useCatalog = true;
         protected bool useMetaData = true;
@@ -56,6 +61,7 @@ namespace Bayat.SaveSystem
         protected bool useEncryption = DefaultUseEncryption;
         protected ISaveSystemEncryption encryptionAlgorithm = DefaultEncryptionAlgorithm;
         protected string password = DefaultPassword;
+        protected bool logExceptions = DefaultLogExceptions;
 
         /// <summary>
         /// Gets the default storage if not set or sets the storage.
@@ -164,6 +170,21 @@ namespace Bayat.SaveSystem
             }
         }
 
+        /// <summary>
+        /// Gets or sets the log exceptions.
+        /// </summary>
+        public virtual bool LogExceptions
+        {
+            get
+            {
+                return this.logExceptions;
+            }
+            set
+            {
+                this.logExceptions = value;
+            }
+        }
+
         static SaveSystemSettings()
         {
             lock (@lock)
@@ -174,6 +195,7 @@ namespace Bayat.SaveSystem
                 DefaultUseEncryption = false;
                 DefaultEncryptionAlgorithm = new SaveSystemSymmetricEncryption();
                 DefaultPassword = "s@veg@me!12:59";
+                DefaultLogExceptions = true;
                 if (SaveSystemSettingsPreset.DefaultPreset != null)
                 {
                     DefaultSettings = SaveSystemSettingsPreset.DefaultPreset.CustomSettings;
@@ -186,7 +208,8 @@ namespace Bayat.SaveSystem
                         Serializer = DefaultSerializer,
                         UseEncryption = DefaultUseEncryption,
                         EncryptionAlgorithm = DefaultEncryptionAlgorithm,
-                        Password = DefaultPassword
+                        Password = DefaultPassword,
+                        LogExceptions = DefaultLogExceptions
                     };
                 }
             }

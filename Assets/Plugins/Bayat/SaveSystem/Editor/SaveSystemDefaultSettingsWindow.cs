@@ -1,6 +1,8 @@
 ﻿using Bayat.Core.EditorWindows;
 using Bayat.Json;
+
 using UnityEditor;
+
 using UnityEngine;
 
 namespace Bayat.SaveSystem
@@ -17,6 +19,7 @@ namespace Bayat.SaveSystem
         protected SerializedProperty passwordProperty;
         protected SerializedProperty encryptionAlgorithmNameProperty;
         protected SerializedProperty serializerSettingsPresetProperty;
+        protected SerializedProperty logExceptionsProperty;
 
         [MenuItem("Window/Bayat/Save System/Default Settings")]
         private static void Initialize()
@@ -38,6 +41,7 @@ namespace Bayat.SaveSystem
             this.passwordProperty = this.settings.FindProperty("password");
             this.encryptionAlgorithmNameProperty = this.settings.FindProperty("ecryptionAlgorithmName");
             this.serializerSettingsPresetProperty = this.settings.FindProperty("serializerSettingsPreset");
+            this.logExceptionsProperty = this.settings.FindProperty("logExceptions");
         }
 
         public new void Show()
@@ -78,6 +82,7 @@ namespace Bayat.SaveSystem
             EditorGUILayout.PropertyField(this.passwordProperty);
             EditorGUILayout.PropertyField(this.encryptionAlgorithmNameProperty);
             EditorGUILayout.PropertyField(this.serializerSettingsPresetProperty);
+            EditorGUILayout.PropertyField(this.logExceptionsProperty);
             if (GUILayout.Button("Open Default Json Settings"))
             {
                 new JsonDefaultSettingsWindow().Show();
