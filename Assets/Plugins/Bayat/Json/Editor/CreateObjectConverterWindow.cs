@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -308,7 +308,7 @@ namespace Bayat.Json
             this.typesPageCount = (this.typesCount + TypesPerPage - 1) / TypesPerPage;
             this.typesOffsetIndex = this.typesPageIndex * TypesPerPage;
 
-            for (int i = this.typesOffsetIndex; i - this.typesOffsetIndex < TypesPerPage; i++)
+            for (int i = this.typesOffsetIndex; i - this.typesOffsetIndex < TypesPerPage && i >= 0; i++)
             {
                 if (i < this.typeNames.Length)
                 {
@@ -359,7 +359,7 @@ namespace Bayat.Json
             {
                 this.typesPageIndex = 0;
             }
-            else if (this.typesPageIndex >= this.typesPageCount)
+            else if (this.typesPageIndex >= this.typesPageCount && typesPageCount > 0)
             {
                 this.typesPageIndex = this.typesPageCount - 1;
             }
