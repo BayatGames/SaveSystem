@@ -675,7 +675,7 @@ namespace Bayat.Core
         /// </summary>
         /// <param name="gameObject">The GameObject to check</param>
         /// <returns>Returns true if the GameObject has any invalid tag, otherwise false.
-        /// In case <see cref="includeIgnoredTags"/> is true, returns true when GameObject has "invalid" label and vise versa.</returns>
+        /// In case <see cref="includeIgnoredTags"/> is true, returns false when GameObject has "invalid" label and vise versa.</returns>
         public virtual bool HasInvalidTag(GameObject gameObject)
         {
             for (int i = 0; i < this.ignoredTags.Length; i++)
@@ -695,7 +695,7 @@ namespace Bayat.Core
         /// </summary>
         /// <param name="unityObject">The Asset to check</param>
         /// <returns>Returns true if the Asset has any invalid labels, otherwise false. 
-        /// In case <see cref="includeIgnoredLabels"/> is true, returns true when Asset has "invalid" label and vise versa.</returns>
+        /// In case <see cref="includeIgnoredLabels"/> is true, returns false when Asset has "invalid" label and vise versa.</returns>
         public bool HasInvalidLabel(UnityObject unityObject)
         {
             if (ignoredLabels.Length < 1) return false;
