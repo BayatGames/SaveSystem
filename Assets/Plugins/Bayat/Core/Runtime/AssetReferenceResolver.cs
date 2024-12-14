@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,6 +15,7 @@ using UnityEditor.SceneManagement;
 using Bayat.Core.Utilities;
 
 using UnityObject = UnityEngine.Object;
+using System.Threading;
 
 namespace Bayat.Core
 {
@@ -78,6 +79,19 @@ namespace Bayat.Core
         [Tooltip("Ignore GameObjects that have any of these tags")]
         [SerializeField]
         protected string[] ignoredTags = new string[] { "EditorOnly" };
+
+        [Tooltip("Include GameObjects that have any of these tags, ignore the others.")]
+        [SerializeField]
+        protected bool includeIgnoredTags = false;
+
+        [Tooltip("Ignore Assets that have any of these labels (bottom right icon in the asset inspector)")]
+        [SerializeField]
+        protected string[] ignoredLabels = new string[0];
+
+        [Tooltip("Include Assets that have any of these labels, ignore the others.")]
+        [SerializeField]
+        protected bool includeIgnoredLabels = false;
+
         [Tooltip("Whether to ignore static GameObjects")]
         [SerializeField]
         protected bool ignoreStatic = false;
@@ -630,6 +644,9 @@ namespace Bayat.Core
                     return false;
                 }
             }
+
+            if (HasInvalidLabel(unityObject)) return false;            
+
             GameObject gameObject = null;
             if (unityObject is GameObject)
             {
@@ -657,18 +674,36 @@ namespace Bayat.Core
         /// Checks whether the given GameObject has any invalid tags determined using <see cref="ignoredTags"/> field.
         /// </summary>
         /// <param name="gameObject">The GameObject to check</param>
-        /// <returns>Returns true if the GameObject has any invalid tag, otherwise false</returns>
+        /// <returns>Returns true if the GameObject has any invalid tag, otherwise false.
+        /// In case <see cref="includeIgnoredTags"/> is true, returns false when GameObject has "invalid" label and vise versa.</returns>
         public virtual bool HasInvalidTag(GameObject gameObject)
         {
             for (int i = 0; i < this.ignoredTags.Length; i++)
             {
                 if (gameObject.CompareTag(this.ignoredTags[i]))
                 {
-                    return true;
+                    return !includeIgnoredTags;
                 }
             }
-            return false;
+            return includeIgnoredTags;
         }
+
+
+        /// <summary>
+        /// Checks whether the given Asset has any invalid labels (they're located at the bottom of the asset's inspector view) inspector view),
+        /// determined using <see cref="ignoredLabels"/> field.
+        /// </summary>
+        /// <param name="unityObject">The Asset to check</param>
+        /// <returns>Returns true if the Asset has any invalid labels, otherwise false. 
+        /// In case <see cref="includeIgnoredLabels"/> is true, returns false when Asset has "invalid" label and vise versa.</returns>
+        public bool HasInvalidLabel(UnityObject unityObject)
+        {
+            if (ignoredLabels.Length < 1) return false;
+
+            var objLabels = AssetDatabase.GetLabels(unityObject);
+            return objLabels.Any(label => ignoredLabels.Contains(label, StringComparer.InvariantCultureIgnoreCase)) ^ includeIgnoredLabels;
+        }
+
 
         [InitializeOnLoadMethod]
         public static void UpdateLocation()

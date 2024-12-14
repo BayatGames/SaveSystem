@@ -1,7 +1,5 @@
-﻿using Bayat.Core.EditorWindows;
-
+using Bayat.Core.EditorWindows;
 using UnityEditor;
-
 using UnityEngine;
 
 namespace Bayat.Core
@@ -15,6 +13,9 @@ namespace Bayat.Core
         protected SerializedProperty mode;
         protected SerializedProperty refreshDependenciesTimeoutInSeconds;
         protected SerializedProperty ignoredTags;
+        protected SerializedProperty includeIgnoredTags;
+        protected SerializedProperty ignoredLabels;
+        protected SerializedProperty includeIgnoredLabels;
         protected SerializedProperty ignoreStatic;
         protected bool foldout = false;
 
@@ -24,6 +25,9 @@ namespace Bayat.Core
             this.mode = serializedObject.FindProperty("mode");
             this.refreshDependenciesTimeoutInSeconds = serializedObject.FindProperty("refreshDependenciesTimeoutInSeconds");
             this.ignoredTags = serializedObject.FindProperty("ignoredTags");
+            this.includeIgnoredTags = serializedObject.FindProperty("includeIgnoredTags");
+            this.ignoredLabels = serializedObject.FindProperty("ignoredLabels");
+            this.includeIgnoredLabels = serializedObject.FindProperty("includeIgnoredLabels");
             this.ignoreStatic = serializedObject.FindProperty("ignoreStatic");
         }
 
@@ -40,6 +44,9 @@ namespace Bayat.Core
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(this.mode);
             EditorGUILayout.PropertyField(this.ignoredTags);
+            EditorGUILayout.PropertyField(this.includeIgnoredTags);
+            EditorGUILayout.PropertyField(this.ignoredLabels);
+            EditorGUILayout.PropertyField(this.includeIgnoredLabels);
             EditorGUILayout.PropertyField(this.ignoreStatic);
 
             EditorGUI.BeginDisabledGroup(this.assetReferenceResolver.Mode == ReferenceResolverMode.Manual);
