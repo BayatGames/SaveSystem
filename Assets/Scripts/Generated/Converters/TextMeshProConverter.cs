@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 using Bayat.Json.Serialization;
-
+using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore;
 
 namespace Bayat.Json.Converters
 {
@@ -19,21 +20,30 @@ namespace Bayat.Json.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(TMPro.TextMeshPro);
+            return typeof(TMPro.TMP_Text).IsAssignableFrom( objectType);
         }
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
-            var instance = (TMPro.TextMeshPro)value;
-            writer.WriteProperty("sortingLayerID", instance.sortingLayerID);
-            writer.WriteProperty("sortingOrder", instance.sortingOrder);
+            var instance = (TMPro.TMP_Text)value;
+            // writer.WriteProperty("sortingLayerID", instance.sortingLayerID);
+            // writer.WriteProperty("sortingOrder", instance.sortingOrder);
             writer.WriteProperty("autoSizeTextContainer", instance.autoSizeTextContainer);
-            internalWriter.SerializeProperty(writer, "maskType", instance.maskType);
+            // internalWriter.SerializeProperty(writer, "maskType", instance.maskType);
             writer.WriteProperty("text", instance.text);
             writer.WriteProperty("isRightToLeftText", instance.isRightToLeftText);
             internalWriter.SerializeProperty(writer, "font", instance.font);
-            //internalWriter.SerializeProperty(writer, "fontSharedMaterial", instance.fontSharedMaterial);
-            internalWriter.SerializeProperty(writer, "fontSharedMaterials", instance.fontSharedMaterials);
+            try
+            {
+                internalWriter.SerializeProperty(writer, "fontSharedMaterial", instance.fontSharedMaterial);
+                // internalWriter.SerializeProperty(writer, "fontSharedMaterials", instance.fontSharedMaterials);
+            }
+            catch (Exception ex)
+            {
+                // Handle cases where the TMPro text component maybe disabled or have no textInfo available in UGUI
+                Debug.LogWarning("The TextMeshPro component is disabled or has no textInfo available, so there are no Shared materials accessible for saving, if this is intended you can ignore this.", instance);
+            }
+
             //internalWriter.SerializeProperty(writer, "fontMaterial", instance.fontMaterial);
             //internalWriter.SerializeProperty(writer, "fontMaterials", instance.fontMaterials);
             internalWriter.SerializeProperty(writer, "color", instance.color);
@@ -92,25 +102,27 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("maskable", instance.maskable);
             writer.WriteProperty("isMaskingGraphic", instance.isMaskingGraphic);
             writer.WriteProperty("raycastTarget", instance.raycastTarget);
+            internalWriter.SerializeProperty(writer, "textWrappingMode", instance.textWrappingMode);
+            internalWriter.SerializeProperty(writer, "fontFeatures", instance.fontFeatures);
             //internalWriter.SerializeProperty(writer, "material", instance.material);
         }
 
         public override object PopulateMember(string memberName, JsonContract contract, JsonReader reader, Type objectType, object targetObject, JsonSerializerReader internalReader)
         {
-            var instance = (TMPro.TextMeshPro)targetObject;
+            var instance = (TMPro.TMP_Text)targetObject;
             switch (memberName)
             {
                 case "sortingLayerID":
-                    instance.sortingLayerID = reader.ReadProperty<System.Int32>();
+                    reader.ReadProperty<System.Int32>();
                     break;
                 case "sortingOrder":
-                    instance.sortingOrder = reader.ReadProperty<System.Int32>();
+                    reader.ReadProperty<System.Int32>();
                     break;
                 case "autoSizeTextContainer":
                     instance.autoSizeTextContainer = reader.ReadProperty<System.Boolean>();
                     break;
                 case "maskType":
-                    instance.maskType = internalReader.DeserializeProperty<TMPro.MaskingTypes>(reader);
+                    internalReader.DeserializeProperty<TMPro.MaskingTypes>(reader);
                     break;
                 case "text":
                     instance.text = reader.ReadProperty<System.String>();
@@ -121,9 +133,9 @@ namespace Bayat.Json.Converters
                 case "font":
                     instance.font = internalReader.DeserializeProperty<TMPro.TMP_FontAsset>(reader);
                     break;
-                //case "fontSharedMaterial":
-                //    instance.fontSharedMaterial = internalReader.DeserializeProperty<UnityEngine.Material>(reader);
-                //    break;
+                case "fontSharedMaterial":
+                    instance.fontSharedMaterial = internalReader.DeserializeProperty<UnityEngine.Material>(reader);
+                    break;
                 case "fontSharedMaterials":
                     instance.fontSharedMaterials = internalReader.DeserializeProperty<UnityEngine.Material[]>(reader);
                     break;
@@ -217,9 +229,9 @@ namespace Bayat.Json.Converters
                 case "linkedTextComponent":
                     instance.linkedTextComponent = internalReader.DeserializeProperty<TMPro.TMP_Text>(reader);
                     break;
-                //case "isLinkedTextComponent":
-                //    instance.isLinkedTextComponent = reader.ReadProperty<System.Boolean>();
-                //    break;
+                case "isLinkedTextComponent":
+                    //instance.isLinkedTextComponent = reader.ReadProperty<System.Boolean>();
+                    break;
                 case "enableKerning":
                     instance.enableKerning = reader.ReadProperty<System.Boolean>();
                     break;
@@ -241,9 +253,9 @@ namespace Bayat.Json.Converters
                 case "enableCulling":
                     instance.enableCulling = reader.ReadProperty<System.Boolean>();
                     break;
-                //case "ignoreRectMaskCulling":
-                //    instance.ignoreRectMaskCulling = reader.ReadProperty<System.Boolean>();
-                //    break;
+                case "ignoreRectMaskCulling":
+                    //instance.ignoreRectMaskCulling = reader.ReadProperty<System.Boolean>();
+                    break;
                 case "ignoreVisibility":
                     instance.ignoreVisibility = reader.ReadProperty<System.Boolean>();
                     break;
@@ -303,6 +315,12 @@ namespace Bayat.Json.Converters
                     break;
                 case "raycastTarget":
                     instance.raycastTarget = reader.ReadProperty<System.Boolean>();
+                    break;
+                case "textWrappingMode":
+                    instance.textWrappingMode = internalReader.DeserializeProperty<TextWrappingModes>(reader);
+                    break;
+                case "fontFeatures":
+                    instance.fontFeatures = internalReader.DeserializeProperty<List<OTL_FeatureTag>>(reader);
                     break;
                 //case "material":
                 //    instance.material = internalReader.DeserializeProperty<UnityEngine.Material>(reader);
