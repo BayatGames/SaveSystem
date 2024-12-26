@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Resolving assets by label & include ignored
-- Add ignored labels & includeIgnored fields to AssetReferenceResolver editor class
+- Resolving assets by label & include ignored (by @fitbie)
+- Add ignored labels & includeIgnored fields to AssetReferenceResolver editor class (by @fitbie)
 
 ### Fixed
 
-- IOR exception when typesPageCount is 0.
+- IOR exception when typesPageCount is 0 (by @fitbie)
