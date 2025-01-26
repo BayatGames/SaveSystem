@@ -137,7 +137,11 @@ namespace Bayat.Json.Converters
                     instance.fontSharedMaterial = internalReader.DeserializeProperty<UnityEngine.Material>(reader);
                     break;
                 case "fontSharedMaterials":
-                    instance.fontSharedMaterials = internalReader.DeserializeProperty<UnityEngine.Material[]>(reader);
+                    UnityEngine.Material[] materials = internalReader.DeserializeProperty<UnityEngine.Material[]>(reader);
+                    if (materials != null)
+                    {
+                        instance.fontSharedMaterials = materials;
+                    }
                     break;
                 //case "fontMaterial":
                 //    instance.fontMaterial = internalReader.DeserializeProperty<UnityEngine.Material>(reader);

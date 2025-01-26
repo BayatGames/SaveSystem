@@ -25,7 +25,11 @@ namespace Bayat.SaveSystem
             {
                 if (current == null)
                 {
+                    #if UNITY_6000_0_OR_NEWER
+                    SaveSystemManager[] instances = FindObjectsByType<SaveSystemManager>(FindObjectsSortMode.None);
+                    #else
                     SaveSystemManager[] instances = FindObjectsOfType<SaveSystemManager>();
+                    #endif
 #if !UNITY_EDITOR
                     if (instances.Length == 0)
                     {
