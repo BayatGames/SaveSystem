@@ -29,12 +29,16 @@ namespace Bayat.SaveSystem
             {
                 if (current == null)
                 {
+                    #if UNITY_6000_0_OR_NEWER
+                    AutoSaveManager[] instances = FindObjectsByType<AutoSaveManager>(FindObjectsSortMode.None);
+                    #else
                     AutoSaveManager[] instances = FindObjectsOfType<AutoSaveManager>();
-#if !UNITY_EDITOR
+                    #endif
+#if UNITY_EDITOR
                     if (instances.Length == 0)
                     {
-                        CreateNewInstance();
-                    }
+                        current = CreateNewInstance();
+                    } else
 #endif
                     if (instances.Length == 1)
                     {
@@ -42,9 +46,11 @@ namespace Bayat.SaveSystem
                     }
                     else if (instances.Length > 1)
                     {
-                        throw new InvalidOperationException("There is more than one AutoSaveManager in this scene, but there must only be one.");
+                        Debug.LogWarning("There is more than one AutoSaveManager in this scene, but there must only be one, using the first instance");
+                        current = instances[0];
                     }
                 }
+                
                 return current;
             }
         }
@@ -135,6 +141,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// A set of predefined event types.
         /// </summary>
+        [Obsolete("Use EventTypeFlags instead.")]
         public enum EventType
         {
 
@@ -202,6 +209,76 @@ namespace Bayat.SaveSystem
 
         }
 
+        /// <summary>
+        /// A set of predefined event types flags.
+        /// </summary>
+        public enum EventTypeFlags
+        {
+
+            /// <summary>
+            /// Manually manage the event.
+            /// </summary>
+            Manual = 0,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Awake.html">Awake</see> event function
+            /// </summary>
+            Awake = 1 << 0,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html">Start</see> event function
+            /// </summary>
+            Start = 1 << 1,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDisable.html">OnDisable</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnDisable = 1 << 2,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnEnable.html">OnEnable</see> event function
+            /// </summary>
+            OnEnable = 1 << 3,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnDestroy.html">OnDestroy</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnDestroy = 1 << 4,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationQuit.html">OnApplicationQuit</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is unreliable on mobile devices, becase the game or app can be terminated directly by the user, so none of these end of lifecycle events will be fired by Unity such as OnDisable, OnDestroy, OnApplicationQuit.
+            /// </remarks>
+            OnApplicationQuit = 1 << 5,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnApplicationPause.html">OnApplicationPause</see> event function
+            /// </summary>
+            /// <remarks>
+            /// This event function is more reliable on mobile devices, because it is called once the user goes out of the game, like the moment they want to close the game or app.
+            /// </remarks>
+            OnApplicationPause = 1 << 6,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneLoaded.html">SceneManager.sceneLoaded</see> event
+            /// </summary>
+            OnSceneLoaded = 1 << 7,
+
+            /// <summary>
+            /// Uses the Unity <see cref="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneUnloaded.html">SceneManager.sceneUnloaded</see> event
+            /// </summary>
+            OnSceneUnloaded = 1 << 8
+
+        }
+
         #region Events
 
         /// <summary>
@@ -250,32 +327,41 @@ namespace Bayat.SaveSystem
         [SerializeField]
         protected List<AutoSave> autoSaves = new List<AutoSave>();
 
-#pragma warning disable 0612, 0618
-        // To be removed in next patches
-        // Used for migration
-        [HideInInspector]
-        [SerializeField]
-        protected SaveEventType saveEvent = SaveEventType.OnApplicationQuit;
-        [HideInInspector]
-        [SerializeField]
-        protected LoadEventType loadEvent = LoadEventType.Start;
-
-        [HideInInspector]
-        [SerializeField]
-        protected bool migrated = false;
-#pragma warning restore 0612, 0618
-
+        // Migration to flags based event types
+        #pragma warning disable 0618
         [Tooltip("Specify when to save the data")]
+        [HideInInspector]
         [SerializeField]
         protected EventType saveEventType = EventType.OnApplicationQuit;
+        
 
         [Tooltip("Specify when to load the data")]
+        [HideInInspector]
         [SerializeField]
         protected EventType loadEventType = EventType.Start;
 
         [Tooltip("Specify when to fetch new auto saves in the scene, like when the scene is loaded")]
+        [HideInInspector]
         [SerializeField]
         protected EventType fetchEventType = EventType.Start;
+
+        [HideInInspector]
+        [SerializeField] 
+        protected bool migratedToFlags = false;
+        #pragma warning restore 0618
+        // End of migration data
+        
+        [Tooltip("Specify when to save the data")]
+        [SerializeField]
+        protected EventTypeFlags saveEventTypeFlags = EventTypeFlags.OnApplicationQuit;
+        
+        [Tooltip("Specify when to load the data")]
+        [SerializeField]
+        protected EventTypeFlags loadEventTypeFlags = EventTypeFlags.Start;
+        
+        [Tooltip("Specify when to fetch new auto saves in the scene, like when the scene is loaded")]
+        [SerializeField]
+        protected EventTypeFlags fetchEventTypeFlags = EventTypeFlags.Start;
 
         [SerializeField]
         protected UnityEvent savedEvent;
@@ -317,6 +403,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// Gets or sets the predefined save event.
         /// </summary>
+        [Obsolete("Use SaveEventFlags instead.", true)]
         public virtual EventType SaveEvent
         {
             get { return this.saveEventType; }
@@ -326,6 +413,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// Gets or sets the predefined load event.
         /// </summary>
+        [Obsolete("Use LoadEventFlags instead.", true)]
         public virtual EventType LoadEvent
         {
             get { return this.loadEventType; }
@@ -335,10 +423,38 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// Gets or sets the predefined fetch event.
         /// </summary>
+        [Obsolete("Use FetchEventFlags instead.", true)]
         public virtual EventType FetchEvent
         {
             get { return this.fetchEventType; }
             set { this.fetchEventType = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the predefined save event.
+        /// </summary>
+        public virtual EventTypeFlags SaveEventFlags
+        {
+            get { return this.saveEventTypeFlags; }
+            set { this.saveEventTypeFlags = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the predefined load event.
+        /// </summary>
+        public virtual EventTypeFlags LoadEventFlags
+        {
+            get { return this.loadEventTypeFlags; }
+            set { this.loadEventTypeFlags = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the predefined fetch event.
+        /// </summary>
+        public virtual EventTypeFlags FetchEventFlags
+        {
+            get { return this.fetchEventTypeFlags; }
+            set { this.fetchEventTypeFlags = value; }
         }
 
         #endregion
@@ -352,24 +468,26 @@ namespace Bayat.SaveSystem
 
         public void OnAfterDeserialize()
         {
-            if (this.migrated)
+            if (this.migratedToFlags)
             {
                 return;
             }
 
             // Migrate the enums from the old fields
-            EventType eventType;
-            if (Enum.TryParse(this.saveEvent.ToString(), out eventType))
+            #pragma warning disable 0618
+            EventTypeFlags eventType;
+            if (Enum.TryParse(this.saveEventType.ToString(), out eventType))
             {
-                this.saveEventType = eventType;
-                this.migrated = true;
+                this.saveEventTypeFlags = eventType;
+                this.migratedToFlags = true;
             }
 
-            if (Enum.TryParse(this.loadEvent.ToString(), out eventType))
+            if (Enum.TryParse(this.loadEventType.ToString(), out eventType))
             {
-                this.loadEventType = eventType;
-                this.migrated = true;
+                this.loadEventTypeFlags = eventType;
+                this.migratedToFlags = true;
             }
+            #pragma warning restore 0618
         }
 
         protected virtual void Reset()
@@ -386,12 +504,12 @@ namespace Bayat.SaveSystem
 
         protected virtual void Awake()
         {
-            HandleEventType(EventType.Awake);
+            HandleEventType(EventTypeFlags.Awake);
         }
 
         protected virtual void Start()
         {
-            HandleEventType(EventType.Start);
+            HandleEventType(EventTypeFlags.Start);
         }
 
         protected virtual void OnEnable()
@@ -399,7 +517,7 @@ namespace Bayat.SaveSystem
             SceneManager.sceneLoaded += OnSceneLoaded;
             SceneManager.sceneUnloaded += OnSceneUnloaded;
 
-            HandleEventType(EventType.OnEnable);
+            HandleEventType(EventTypeFlags.OnEnable);
         }
 
         protected virtual void OnDisable()
@@ -407,22 +525,22 @@ namespace Bayat.SaveSystem
             SceneManager.sceneLoaded -= OnSceneLoaded;
             SceneManager.sceneUnloaded -= OnSceneUnloaded;
 
-            HandleEventType(EventType.OnDisable);
+            HandleEventType(EventTypeFlags.OnDisable);
         }
 
         protected virtual void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            HandleEventType(EventType.OnSceneLoaded);
+            HandleEventType(EventTypeFlags.OnSceneLoaded);
         }
 
         protected virtual void OnSceneUnloaded(Scene scene)
         {
-            HandleEventType(EventType.OnSceneUnloaded);
+            HandleEventType(EventTypeFlags.OnSceneUnloaded);
         }
 
         protected virtual void OnApplicationQuit()
         {
-            HandleEventType(EventType.OnApplicationQuit);
+            HandleEventType(EventTypeFlags.OnApplicationQuit);
         }
 
         protected virtual void OnApplicationPause(bool paused)
@@ -434,32 +552,32 @@ namespace Bayat.SaveSystem
 
             if (Application.isMobilePlatform)
             {
-                if (this.saveEventType == EventType.OnApplicationQuit)
+                if (this.saveEventTypeFlags.HasFlag(EventTypeFlags.OnApplicationQuit))
                 {
-                    HandleEventType(EventType.OnApplicationQuit);
+                    HandleEventType(EventTypeFlags.OnApplicationQuit);
                 }
                 else
                 {
-                    HandleEventType(EventType.OnApplicationPause);
+                    HandleEventType(EventTypeFlags.OnApplicationPause);
                 }
             }
             else
             {
-                HandleEventType(EventType.OnApplicationPause);
+                HandleEventType(EventTypeFlags.OnApplicationPause);
             }
         }
 
-        protected virtual void HandleEventType(EventType type)
+        protected virtual void HandleEventType(EventTypeFlags type)
         {
-            if (this.fetchEventType == type)
+            if (this.fetchEventTypeFlags.HasFlag(type))
             {
                 FetchAutoSaves();
             }
-            if (this.saveEventType == type)
+            if (this.saveEventTypeFlags.HasFlag(type))
             {
                 Save();
             }
-            if (this.loadEventType == type)
+            if (this.loadEventTypeFlags.HasFlag(type))
             {
                 Load();
             }
@@ -487,7 +605,11 @@ namespace Bayat.SaveSystem
                 this.autoSaves = new List<AutoSave>();
             }
 
+            #if UNITY_6000_0_OR_NEWER
+            var fetchedAutoSaves = FindObjectsByType<AutoSave>(FindObjectsSortMode.None);
+            #else
             var fetchedAutoSaves = FindObjectsOfType<AutoSave>();
+            #endif
             for (int i = 0; i < fetchedAutoSaves.Length; i++)
             {
                 var fetchedAutoSave = fetchedAutoSaves[i];
@@ -652,11 +774,10 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// Creates a new instance of <see cref="AutoSaveManager"/> in the current scene.
         /// </summary>
-        public static GameObject CreateNewInstance()
+        public static AutoSaveManager CreateNewInstance()
         {
             GameObject go = new GameObject("Auto Save Manager");
-            current = go.AddComponent<AutoSaveManager>();
-            return go;
+            return go.AddComponent<AutoSaveManager>();
         }
 
 #if UNITY_EDITOR
@@ -667,7 +788,7 @@ namespace Bayat.SaveSystem
             {
                 return;
             }
-            Selection.activeGameObject = CreateNewInstance();
+            Selection.activeGameObject = CreateNewInstance().gameObject;
         }
 #endif
         #endregion
