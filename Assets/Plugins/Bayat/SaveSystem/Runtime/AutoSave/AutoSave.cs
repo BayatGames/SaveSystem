@@ -1,4 +1,5 @@
 ﻿using Bayat.Json;
+
 using UnityEngine;
 
 namespace Bayat.SaveSystem
@@ -16,20 +17,29 @@ namespace Bayat.SaveSystem
 
         protected virtual void OnEnable()
         {
-            AutoSaveManager.Current.AddAutoSave(this);
+            if (AutoSaveManager.Current != null)
+            {
+                AutoSaveManager.Current.AddAutoSave(this);
+            }
         }
 
         protected virtual void OnDisable()
         {
             if (this.removeOnDisable)
             {
-                AutoSaveManager.Current.RemoveAutoSave(this);
+                if (AutoSaveManager.Current != null)
+                {
+                    AutoSaveManager.Current.RemoveAutoSave(this);
+                }
             }
         }
 
         protected virtual void OnDestroy()
         {
-            AutoSaveManager.Current.RemoveAutoSave(this);
+            if (AutoSaveManager.Current != null)
+            {
+                AutoSaveManager.Current.RemoveAutoSave(this);
+            }
         }
 
     }
