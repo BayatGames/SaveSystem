@@ -70,6 +70,8 @@ namespace Bayat.Json.Utilities
                     throw new InvalidOperationException("Enum name '{0}' already exists on enum '{1}'.".FormatWith(CultureInfo.InvariantCulture, n2, type.Name));
                 }
 
+                UnityEngine.Debug.Log(n1);
+                UnityEngine.Debug.Log(n2);
                 map.Set(n1, n2);
             }
 

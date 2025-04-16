@@ -64,7 +64,11 @@ namespace Bayat.Json.Converters
                     instance.contactOffset = reader.ReadProperty<System.Single>();
                     break;
                 case "sharedMaterial":
+                    #if UNITY_6000_0_OR_NEWER
+                    instance.sharedMaterial = internalReader.DeserializeProperty<UnityEngine.PhysicsMaterial>(reader);
+                    #else
                     instance.sharedMaterial = internalReader.DeserializeProperty<UnityEngine.PhysicMaterial>(reader);
+                    #endif
                     break;
                 default:
                     base.PopulateMember(memberName, contract, reader, objectType, targetObject, internalReader);

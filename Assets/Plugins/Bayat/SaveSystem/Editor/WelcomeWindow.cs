@@ -1,6 +1,7 @@
 ﻿using Bayat.Core.EditorWindows;
 
 using UnityEditor;
+using UnityEditor.Build;
 
 using UnityEngine;
 
@@ -55,14 +56,18 @@ namespace Bayat.SaveSystem
         [InitializeOnLoadMethod]
         private static void CheckScriptingRuntime()
         {
+            #if UNITY_6000_0_OR_NEWER
+            var currentCompatiblityLevel = PlayerSettings.GetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup));
+            #else
+            var currentCompatiblityLevel = PlayerSettings.GetApiCompatibilityLevel(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget));
+            #endif
 #if !UNITY_2019_3_OR_NEWER
-            if (PlayerSettings.scriptingRuntimeVersion != ScriptingRuntimeVersion.Latest || PlayerSettings.GetApiCompatibilityLevel(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget)) != ApiCompatibilityLevel.NET_4_6)
+            if (PlayerSettings.scriptingRuntimeVersion != ScriptingRuntimeVersion.Latest || currentCompatiblityLevel != ApiCompatibilityLevel.NET_4_6)
             {
                 UpdateScriptingRuntime();
                 return;
             }
 #endif
-            var currentCompatiblityLevel = PlayerSettings.GetApiCompatibilityLevel(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget));
             if (currentCompatiblityLevel != ApiCompatibilityLevel.NET_4_6)
             {
                 //UpdateScriptingRuntime();
@@ -75,8 +80,11 @@ namespace Bayat.SaveSystem
             {
 #if !UNITY_2019_3_OR_NEWER
                 PlayerSettings.scriptingRuntimeVersion = ScriptingRuntimeVersion.Latest;
-#endif
+#elif UNITY_6000_0_OR_NEWER
+                PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.FromBuildTargetGroup(EditorUserBuildSettings.selectedBuildTargetGroup), ApiCompatibilityLevel.NET_4_6);
+#else
                 PlayerSettings.SetApiCompatibilityLevel(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget), ApiCompatibilityLevel.NET_4_6);
+#endif
             }
         }
 
