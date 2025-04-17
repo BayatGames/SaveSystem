@@ -273,6 +273,10 @@ namespace Bayat.Json.Converters
                     }
                     return targetObject;
                 }
+                if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
+                {
+                    SceneReferenceResolver.Current.Add((UnityEngine.Object)targetObject, unityGuid);
+                }
                 internalReader.OnDeserializing(reader, contract, targetObject);
                 bool referenceAdded = false;
                 if (id != null && targetObject != null)
@@ -286,10 +290,6 @@ namespace Bayat.Json.Converters
                     internalReader.AddReference(reader, id, targetObject);
                 }
                 internalReader.OnDeserialized(reader, contract, targetObject);
-                if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
-                {
-                    SceneReferenceResolver.Current.Add((UnityEngine.Object)targetObject, unityGuid);
-                }
                 return targetObject;
             }
             else

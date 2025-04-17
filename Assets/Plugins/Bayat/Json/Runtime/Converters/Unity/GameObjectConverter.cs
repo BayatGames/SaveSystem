@@ -44,6 +44,7 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("isStatic", gameObject.isStatic);
             writer.WriteProperty("layer", gameObject.layer);
             writer.WriteProperty("hideFlags", gameObject.hideFlags);
+            internalWriter.SerializeProperty(writer, "transform", gameObject.transform);
 
             bool serializeChildren = true;
             if (serializationHandler != null)
@@ -125,6 +126,9 @@ namespace Bayat.Json.Converters
                 case "hideFlags":
                     gameObject.hideFlags = (HideFlags)reader.ReadAsInt32().GetValueOrDefault();
                     break;
+                case "transform":
+                    internalReader.DeserializeIntoProperty(reader, gameObject.transform);
+                    break;
                 case "children":
 
                     // Skip property name
@@ -148,7 +152,7 @@ namespace Bayat.Json.Converters
                                     continue;
                                 }
                                 GameObject child = internalReader.Deserialize<GameObject>(reader);
-                                child.transform.SetParent(gameObject.transform, true);
+                                //child.transform.SetParent(gameObject.transform, true);
                                 //child.transform.parent = gameObject.transform;
                                 break;
                         }

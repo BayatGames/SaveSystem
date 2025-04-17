@@ -50,7 +50,8 @@ namespace Bayat.Json.Converters
                 case "parent":
 
                     // Handles old data
-                    instance.parent = internalReader.DeserializeProperty<UnityEngine.Transform>(reader);
+                    internalReader.DeserializeProperty<UnityEngine.Transform>(reader);
+                    //instance.parent = internalReader.DeserializeProperty<UnityEngine.Transform>(reader);
                     break;
                 case "parentRef":
                     string unityGuid = reader.ReadAsString();
