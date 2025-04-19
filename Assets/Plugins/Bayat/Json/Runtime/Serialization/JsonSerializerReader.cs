@@ -516,9 +516,11 @@ namespace Bayat.Json.Serialization
         {
             string id;
             string unityGuid;
+            string gameObjectGuid;
             Type resolvedObjectType = objectType;
             UnityEngine.Object unityObject = null;
             UnityEngine.GameObject unityPrefab = null;
+            UnityEngine.GameObject gameObject = null;
 
             if (this.Serializer.MetadataPropertyHandling == MetadataPropertyHandling.Ignore)
             {
@@ -526,6 +528,7 @@ namespace Bayat.Json.Serialization
                 reader.ReadAndAssert();
                 id = null;
                 unityGuid = null;
+                gameObjectGuid = null;
             }
             else if (this.Serializer.MetadataPropertyHandling == MetadataPropertyHandling.ReadAhead)
             {
@@ -548,7 +551,7 @@ namespace Bayat.Json.Serialization
                 }
 
                 object newValue;
-                if (ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
+                if (ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out gameObjectGuid, out unityObject, out unityPrefab, out gameObject))
                 {
                     if (unityPrefab != null)
                     {
@@ -557,14 +560,6 @@ namespace Bayat.Json.Serialization
                     if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
                     {
                         SceneReferenceResolver.Current.Add(unityObject, unityGuid);
-                        //if (SceneReferenceResolver.Current.Contains(unityGuid))
-                        //{
-                        //    SceneReferenceResolver.Current.Set(unityGuid, unityObject);
-                        //}
-                        //else
-                        //{
-                        //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
-                        //}
                     }
                     if (id != null)
                     {
@@ -588,7 +583,7 @@ namespace Bayat.Json.Serialization
             {
                 reader.ReadAndAssert();
                 object newValue;
-                if (ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
+                if (ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, member, containerContract, containerMember, existingValue, out newValue, out id, out unityGuid, out gameObjectGuid, out unityObject, out unityPrefab, out gameObject))
                 {
                     if (unityPrefab != null)
                     {
@@ -597,14 +592,6 @@ namespace Bayat.Json.Serialization
                     if (SceneReferenceResolver.Current != null && !string.IsNullOrEmpty(unityGuid) && !AssetReferenceResolver.Current.Contains(unityGuid))
                     {
                         SceneReferenceResolver.Current.Add(unityObject, unityGuid);
-                        //if (SceneReferenceResolver.Current.Contains(unityGuid))
-                        //{
-                        //    SceneReferenceResolver.Current.Set(unityGuid, unityObject);
-                        //}
-                        //else
-                        //{
-                        //    SceneReferenceResolver.Current.Add(unityGuid, unityObject);
-                        //}
                     }
                     if (id != null)
                     {
@@ -662,11 +649,11 @@ namespace Bayat.Json.Serialization
                             {
                                 if (objectConverter != null)
                                 {
-                                    targetObject = objectConverter.Create(reader, this, objectContract, id, unityGuid, resolvedObjectType, out createdFromNonDefaultCreator);
+                                    targetObject = objectConverter.Create(reader, this, objectContract, id, unityGuid, gameObjectGuid, resolvedObjectType, out createdFromNonDefaultCreator);
                                 }
                                 else
                                 {
-                                    targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, out createdFromNonDefaultCreator);
+                                    targetObject = CreateNewObject(reader, objectContract, member, containerMember, id, unityGuid, gameObjectGuid, out createdFromNonDefaultCreator);
                                 }
                             }
                         }
@@ -795,13 +782,15 @@ namespace Bayat.Json.Serialization
             throw JsonSerializationException.Create(reader, message);
         }
 
-        internal bool ReadMetadataPropertiesToken(JTokenReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab)
+        internal bool ReadMetadataPropertiesToken(JTokenReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out string gameObjectGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab, out UnityEngine.GameObject gameObject)
         {
             id = null;
             newValue = null;
             unityObject = null;
             unityPrefab = null;
             unityGuid = null;
+            gameObject = null;
+            gameObjectGuid = null;
 
             if (reader.TokenType == JsonToken.StartObject)
             {
@@ -814,6 +803,16 @@ namespace Bayat.Json.Serialization
                     if (PrefabReferenceResolver.Current != null)
                     {
                         unityPrefab = PrefabReferenceResolver.Current.Get(unityPrefabGuid) as UnityEngine.GameObject;
+                    }
+                }
+
+                JToken unityGameObjectRefToken = current[JsonTypeReflector.UnityGameObjectRefPropertyName];
+                if (unityGameObjectRefToken != null)
+                {
+                    gameObjectGuid = (string)unityGameObjectRefToken;
+                    if (SceneReferenceResolver.Current != null)
+                    {
+                        gameObject = SceneReferenceResolver.Current.Get(gameObjectGuid) as UnityEngine.GameObject;
                     }
                 }
 
@@ -838,6 +837,7 @@ namespace Bayat.Json.Serialization
                         }
                     }
                 }
+
                 JToken refToken = current[JsonTypeReflector.RefPropertyName];
                 if (refToken != null)
                 {
@@ -929,13 +929,15 @@ namespace Bayat.Json.Serialization
             return false;
         }
 
-        internal bool ReadMetadataProperties(JsonReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab)
+        internal bool ReadMetadataProperties(JsonReader reader, ref Type objectType, ref JsonContract contract, JsonProperty member, JsonContainerContract containerContract, JsonProperty containerMember, object existingValue, out object newValue, out string id, out string unityGuid, out string gameObjectGuid, out UnityEngine.Object unityObject, out UnityEngine.GameObject unityPrefab, out UnityEngine.GameObject gameObject)
         {
             id = null;
             newValue = null;
             unityObject = null;
             unityPrefab = null;
             unityGuid = null;
+            gameObjectGuid = null;
+            gameObject = null;
 
             if (reader.TokenType == JsonToken.PropertyName)
             {
@@ -1016,6 +1018,19 @@ namespace Bayat.Json.Serialization
                             if (PrefabReferenceResolver.Current != null)
                             {
                                 unityPrefab = PrefabReferenceResolver.Current.Get(unityPrefabGuid) as UnityEngine.GameObject;
+                            }
+
+                            reader.ReadAndAssert();
+                            metadataProperty = true;
+                        }
+                        else if (string.Equals(propertyName, JsonTypeReflector.UnityGameObjectRefPropertyName, StringComparison.Ordinal))
+                        {
+                            reader.ReadAndAssert();
+
+                            gameObjectGuid = (reader.Value != null) ? reader.Value.ToString() : null;
+                            if (SceneReferenceResolver.Current != null)
+                            {
+                                gameObject = SceneReferenceResolver.Current.Get(gameObjectGuid) as UnityEngine.GameObject;
                             }
 
                             reader.ReadAndAssert();
@@ -2552,7 +2567,7 @@ namespace Bayat.Json.Serialization
             return (reader.TokenType != JsonToken.None);
         }
 
-        public object CreateNewObject(JsonReader reader, JsonObjectContract objectContract, JsonProperty containerMember, JsonProperty containerProperty, string id, string unityGuid, out bool createdFromNonDefaultCreator)
+        public object CreateNewObject(JsonReader reader, JsonObjectContract objectContract, JsonProperty containerMember, JsonProperty containerProperty, string id, string unityGuid, string gameObjectGuid, out bool createdFromNonDefaultCreator)
         {
             object newObject = null;
 
@@ -2588,7 +2603,7 @@ namespace Bayat.Json.Serialization
                 go = new UnityEngine.GameObject(string.Format("JSON Loaded {0} Component", objectContract.UnderlyingType.Name));
                 if (SceneReferenceResolver.Current != null && string.IsNullOrEmpty(SceneReferenceResolver.Current.Get(go)))
                 {
-                    SceneReferenceResolver.Current.Add(go);
+                    SceneReferenceResolver.Current.Add(go, gameObjectGuid);
                 }
                 UnityEngine.Component component = go.GetComponent(objectContract.UnderlyingType);
                 if (component == null)
@@ -2881,6 +2896,7 @@ namespace Bayat.Json.Serialization
                 {
                     case JsonTypeReflector.IdPropertyName:
                     case JsonTypeReflector.UnityRefPropertyName:
+                    case JsonTypeReflector.UnityGameObjectRefPropertyName:
                     case JsonTypeReflector.UnityPrefabRefPropertyName:
                     case JsonTypeReflector.RefPropertyName:
                     case JsonTypeReflector.TypePropertyName:

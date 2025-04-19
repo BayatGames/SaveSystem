@@ -416,6 +416,7 @@ namespace Bayat.Json.Serialization
                         {
                             this.TraceWriter.Trace(TraceLevel.Info, JsonPosition.FormatMessage(null, writer.Path, "Writing Unity object reference to Id '{0}' for {1}.".FormatWith(CultureInfo.InvariantCulture, guid, value.GetType())), null);
                         }
+
                         if (unityObject is UnityEngine.GameObject gameObject)
                         {
                             var savablePrefab = gameObject.GetComponent<ISavablePrefab>();
@@ -425,6 +426,17 @@ namespace Bayat.Json.Serialization
                                 writer.WriteValue(savablePrefab.PrefabRef);
                             }
                         }
+
+                        if (unityObject is UnityEngine.Component component)
+                        {
+                            string gameObjectGuid = AssetReferenceResolver.Current.Get(component.gameObject);
+                            if (!string.IsNullOrEmpty(gameObjectGuid))
+                            {
+                                writer.WritePropertyName(JsonTypeReflector.UnityGameObjectRefPropertyName, false);
+                                writer.WriteValue(gameObjectGuid);
+                            }
+                        }
+
                         writer.WritePropertyName(JsonTypeReflector.UnityRefPropertyName, false);
                         writer.WriteValue(guid);
                         writer.WriteEndObject();
@@ -697,10 +709,12 @@ namespace Bayat.Json.Serialization
                     {
                         guid = AssetReferenceResolver.Current.Get(unityObject);
                     }
+
                     if (string.IsNullOrEmpty(guid))
                     {
                         guid = SceneReferenceResolver.Current.Add(unityObject);
                     }
+
                     if (unityObject is UnityEngine.GameObject gameObject)
                     {
                         var savablePrefab = gameObject.GetComponent<ISavablePrefab>();
@@ -710,6 +724,22 @@ namespace Bayat.Json.Serialization
                             writer.WriteValue(savablePrefab.PrefabRef);
                         }
                     }
+
+                    if (unityObject is UnityEngine.Component component)
+                    {
+                        var gameObjectGuid = SceneReferenceResolver.Current.Get(component.gameObject);
+                        if (string.IsNullOrEmpty(gameObjectGuid))
+                        {
+                            gameObjectGuid = SceneReferenceResolver.Current.Add(component.gameObject);
+                        }
+
+                        if (!string.IsNullOrEmpty(gameObjectGuid))
+                        {
+                            writer.WritePropertyName(JsonTypeReflector.UnityGameObjectRefPropertyName, false);
+                            writer.WriteValue(gameObjectGuid);
+                        }
+                    }
+
                     writer.WritePropertyName(JsonTypeReflector.UnityRefPropertyName, false);
                     writer.WriteValue(guid);
                 }

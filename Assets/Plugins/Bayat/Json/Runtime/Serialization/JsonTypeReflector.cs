@@ -55,6 +55,7 @@ namespace Bayat.Json.Serialization
 
         public const string IdPropertyName = "$id";
         public const string UnityRefPropertyName = "$unityRef";
+        public const string UnityGameObjectRefPropertyName = "$unityGameObjectRef";
         public const string UnityPrefabRefPropertyName = "$unityPrefabRef";
         public const string RefPropertyName = "$ref";
         public const string TypePropertyName = "$type";

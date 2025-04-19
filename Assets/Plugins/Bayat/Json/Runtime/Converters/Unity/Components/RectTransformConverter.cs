@@ -5,7 +5,7 @@ using Bayat.Json.Serialization;
 namespace Bayat.Json.Converters
 {
 
-    public class RectTransformConverter : ObjectJsonConverter
+    public class RectTransformConverter : UnityComponentConverter
     {
 
         public override string[] GetObjectProperties()
@@ -20,6 +20,8 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
+            base.WriteProperties(contract, writer, value, objectType, internalWriter);
+
             var instance = (UnityEngine.RectTransform)value;
             internalWriter.SerializeProperty(writer, "anchorMin", instance.anchorMin);
             internalWriter.SerializeProperty(writer, "anchorMax", instance.anchorMax);
@@ -73,9 +75,10 @@ namespace Bayat.Json.Converters
                     instance.SetParent(internalReader.DeserializeProperty<UnityEngine.Transform>(reader), false);
                     break;
                 default:
-                    reader.Skip();
+                    base.PopulateMember(memberName, contract, reader, objectType, targetObject, internalReader);
                     break;
             }
+
             return instance;
         }
 

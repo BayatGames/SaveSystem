@@ -16,7 +16,7 @@ namespace Bayat.SaveSystem
         /// <summary>
         /// The plugin's version.
         /// </summary>
-        public static readonly Version Version = new Version(1, 21, 8);
+        public static readonly Version Version = new Version(1, 22, 0);
 
     }
 

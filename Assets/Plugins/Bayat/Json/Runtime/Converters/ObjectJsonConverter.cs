@@ -24,9 +24,9 @@ namespace Bayat.Json.Converters
             return new List<string>();
         }
 
-        public virtual object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, Type objectType, out bool exit)
+        public virtual object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, string gameObjectGuid, Type objectType, out bool exit)
         {
-            return internalReader.CreateNewObject(reader, objectContract, null, null, id, unityGuid, out exit);
+            return internalReader.CreateNewObject(reader, objectContract, null, null, id, unityGuid, gameObjectGuid, out exit);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializerWriter internalWriter)
@@ -113,6 +113,7 @@ namespace Bayat.Json.Converters
             JsonContract contract = internalReader.GetContractSafe(objectType);
             UnityEngine.Object unityObject = null;
             UnityEngine.GameObject unityPrefab = null;
+            UnityEngine.GameObject gameObject = null;
 
             if (!reader.MoveToContent())
             {
@@ -126,6 +127,7 @@ namespace Bayat.Json.Converters
             {
                 string id;
                 string unityGuid;
+                string gameObjectGuid;
                 Type resolvedObjectType = objectType;
 
                 if (internalReader.Serializer.MetadataPropertyHandling == MetadataPropertyHandling.Ignore)
@@ -134,6 +136,7 @@ namespace Bayat.Json.Converters
                     reader.ReadAndAssert();
                     id = null;
                     unityGuid = null;
+                    gameObjectGuid = null;
                 }
                 else if (internalReader.Serializer.MetadataPropertyHandling == MetadataPropertyHandling.ReadAhead)
                 {
@@ -156,7 +159,7 @@ namespace Bayat.Json.Converters
                     }
 
                     object newValue;
-                    if (internalReader.ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, null, null, null, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
+                    if (internalReader.ReadMetadataPropertiesToken(tokenReader, ref resolvedObjectType, ref contract, null, null, null, existingValue, out newValue, out id, out unityGuid, out gameObjectGuid, out unityObject, out unityPrefab, out gameObject))
                     {
                         if (unityPrefab != null)
                         {
@@ -196,7 +199,7 @@ namespace Bayat.Json.Converters
                 {
                     reader.ReadAndAssert();
                     object newValue;
-                    if (internalReader.ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, null, null, null, existingValue, out newValue, out id, out unityGuid, out unityObject, out unityPrefab))
+                    if (internalReader.ReadMetadataProperties(reader, ref resolvedObjectType, ref contract, null, null, null, existingValue, out newValue, out id, out unityGuid, out gameObjectGuid, out unityObject, out unityPrefab, out gameObject))
                     {
                         if (unityPrefab != null)
                         {
@@ -260,7 +263,7 @@ namespace Bayat.Json.Converters
                     }
                     else
                     {
-                        targetObject = Create(reader, internalReader, objectContract, id, unityGuid, objectType, out createdFromNonDefaultCreator);
+                        targetObject = Create(reader, internalReader, objectContract, id, unityGuid, gameObjectGuid, objectType, out createdFromNonDefaultCreator);
                     }
                 }
 

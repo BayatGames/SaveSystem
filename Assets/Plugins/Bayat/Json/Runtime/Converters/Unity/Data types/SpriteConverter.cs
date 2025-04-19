@@ -1,5 +1,7 @@
-using Bayat.Json.Serialization;
 using System;
+
+using Bayat.Json.Serialization;
+
 using UnityEngine;
 
 namespace Bayat.Json.Converters
@@ -8,7 +10,7 @@ namespace Bayat.Json.Converters
     public class SpriteConverter : ObjectJsonConverter
     {
 
-        public override object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, Type objectType, out bool exit)
+        public override object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, string gameObjectGuid, Type objectType, out bool exit)
         {
             Texture2D texture = internalReader.DeserializeProperty<UnityEngine.Texture2D>(reader);
             Rect textureRect = internalReader.DeserializeProperty<Rect>(reader);

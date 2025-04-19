@@ -1,10 +1,11 @@
-using Bayat.Json.Serialization;
 using System;
+
+using Bayat.Json.Serialization;
 
 namespace Bayat.Json.Converters
 {
 
-    public class MeshFilterConverter : ObjectJsonConverter
+    public class MeshFilterConverter : UnityComponentConverter
     {
 
         public override string[] GetObjectProperties()
@@ -19,6 +20,8 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
+            base.WriteProperties(contract, writer, value, objectType, internalWriter);
+
             var instance = (UnityEngine.MeshFilter)value;
             internalWriter.SerializeProperty(writer, "sharedMesh", instance.sharedMesh);
             internalWriter.SerializeProperty(writer, "hideFlags", instance.hideFlags);
@@ -36,9 +39,10 @@ namespace Bayat.Json.Converters
                     instance.hideFlags = internalReader.DeserializeProperty<UnityEngine.HideFlags>(reader);
                     break;
                 default:
-                    reader.Skip();
+                    base.PopulateMember(memberName, contract, reader, objectType, targetObject, internalReader);
                     break;
             }
+
             return instance;
         }
 

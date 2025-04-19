@@ -10,7 +10,7 @@ namespace Bayat.Json.Converters
     public class ShaderConverter : UnityObjectConverter
     {
 
-        public override object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, Type objectType, out bool exit)
+        public override object Create(JsonReader reader, JsonSerializerReader internalReader, JsonObjectContract objectContract, string id, string unityGuid, string gameObjectGuid, Type objectType, out bool exit)
         {
             exit = false;
             return null;

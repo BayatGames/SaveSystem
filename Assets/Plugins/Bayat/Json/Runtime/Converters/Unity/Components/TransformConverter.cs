@@ -6,7 +6,7 @@ using Bayat.Json.Serialization;
 namespace Bayat.Json.Converters
 {
 
-    public class TransformConverter : ObjectJsonConverter
+    public class TransformConverter : UnityComponentConverter
     {
 
         public override string[] GetObjectProperties()
@@ -21,6 +21,8 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
+            base.WriteProperties(contract, writer, value, objectType, internalWriter);
+
             var instance = (UnityEngine.Transform)value;
 
             // We just store the reference instead of the whole transform
@@ -77,9 +79,10 @@ namespace Bayat.Json.Converters
                     instance.hideFlags = internalReader.DeserializeProperty<UnityEngine.HideFlags>(reader);
                     break;
                 default:
-                    reader.Skip();
+                    base.PopulateMember(memberName, contract, reader, objectType, targetObject, internalReader);
                     break;
             }
+
             return instance;
         }
 

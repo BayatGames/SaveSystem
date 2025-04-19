@@ -5,7 +5,7 @@ using Bayat.Json.Serialization;
 namespace Bayat.Json.Converters
 {
 
-    public class AnimatorConverter : ObjectJsonConverter
+    public class AnimatorConverter : UnityComponentConverter
     {
 
         public override string[] GetObjectProperties()
@@ -20,6 +20,8 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
+            base.WriteProperties(contract, writer, value, objectType, internalWriter);
+
             var instance = (UnityEngine.Animator)value;
             internalWriter.SerializeProperty(writer, "rootPosition", instance.rootPosition);
             internalWriter.SerializeProperty(writer, "rootRotation", instance.rootRotation);
@@ -113,9 +115,10 @@ namespace Bayat.Json.Converters
                     instance.enabled = internalReader.DeserializeProperty<bool>(reader);
                     break;
                 default:
-                    reader.Skip();
+                    base.PopulateMember(memberName, contract, reader, objectType, targetObject, internalReader);
                     break;
             }
+
             return instance;
         }
 
