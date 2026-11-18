@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.25.9] - 2026-11-18
+
 - Support Unity 6.6 while retaining the older Editor API paths.
 - Preserve asset and prefab reference databases during import. Existing save GUIDs and the legacy integer object and refresh-rate fields are unchanged in format.
 - Read 3D physics material type names used both before and after Unity 6. Keep the TextMeshPro sample's legacy wrapping and kerning fields.
