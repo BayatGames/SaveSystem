@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c13e8bceaf2ab24bb377fdd320d0fd5, type: 3}
   m_Name: PrefabReferenceResolver
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Bayat.Core.Runtime::Bayat.Core.PrefabReferenceResolver
   ignoredTags:
   - EditorOnly
   ignoreStatic: 0

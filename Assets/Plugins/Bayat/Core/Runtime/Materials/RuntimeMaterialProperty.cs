@@ -48,7 +48,7 @@ namespace Bayat.Core
         }
 
 #if UNITY_EDITOR
-        public RuntimeMaterialProperty(string name, MaterialProperty.PropType propType)
+        public RuntimeMaterialProperty(string name, UnityEngine.Rendering.ShaderPropertyType propType)
         {
             this.name = name;
             this.type = ConvertPropType(propType);
@@ -59,24 +59,24 @@ namespace Bayat.Core
         /// </summary>
         /// <param name="propType">The prop type</param>
         /// <returns><see cref="RuntimeMaterialPropertyType"/></returns>
-        public static RuntimeMaterialPropertyType ConvertPropType(MaterialProperty.PropType propType)
+        public static RuntimeMaterialPropertyType ConvertPropType(UnityEngine.Rendering.ShaderPropertyType propType)
         {
             RuntimeMaterialPropertyType type = RuntimeMaterialPropertyType.Color;
             switch (propType)
             {
-                case MaterialProperty.PropType.Color:
+                case UnityEngine.Rendering.ShaderPropertyType.Color:
                     type = RuntimeMaterialPropertyType.Color;
                     break;
-                case MaterialProperty.PropType.Vector:
+                case UnityEngine.Rendering.ShaderPropertyType.Vector:
                     type = RuntimeMaterialPropertyType.Vector;
                     break;
-                case MaterialProperty.PropType.Float:
+                case UnityEngine.Rendering.ShaderPropertyType.Float:
                     type = RuntimeMaterialPropertyType.Float;
                     break;
-                case MaterialProperty.PropType.Range:
+                case UnityEngine.Rendering.ShaderPropertyType.Range:
                     type = RuntimeMaterialPropertyType.Range;
                     break;
-                case MaterialProperty.PropType.Texture:
+                case UnityEngine.Rendering.ShaderPropertyType.Texture:
                     type = RuntimeMaterialPropertyType.Texture;
                     break;
             }

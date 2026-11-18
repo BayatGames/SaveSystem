@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using Bayat.Json.Serialization;
 
+using UnityEngine;
+
 namespace Bayat.Json.Converters
 {
 
@@ -41,7 +43,11 @@ namespace Bayat.Json.Converters
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
             var instance = (UnityEngine.Object)value;
+            #if UNITY_6000_0_OR_NEWER
+            writer.WriteProperty("entityID", EntityId.ToULong(instance.GetEntityId()));
+            #else
             writer.WriteProperty("instanceID", instance.GetInstanceID());
+            #endif
         }
 
     }

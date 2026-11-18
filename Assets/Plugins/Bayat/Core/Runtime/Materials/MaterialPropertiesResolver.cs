@@ -207,7 +207,7 @@ namespace Bayat.Core
                     for (int j = 0; j < properties.Length; j++)
                     {
                         MaterialProperty property = properties[j];
-                        RuntimeMaterialProperty runtimeProperty = new RuntimeMaterialProperty(property.name, property.type);
+                        RuntimeMaterialProperty runtimeProperty = new RuntimeMaterialProperty(property.name, property.propertyType);
                         int index = runtimeProperties.Properties.FindIndex(theProperty => theProperty.Name == property.name);
                         if (index == -1)
                         {
