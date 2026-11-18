@@ -25,6 +25,9 @@ namespace Bayat.Core
     public class PrefabReferenceResolver : ScriptableObject
     {
 
+#if UNITY_EDITOR
+        private const string AssetPath = "Assets/Resources/Bayat/Core/PrefabReferenceResolver.asset";
+#endif
         private static PrefabReferenceResolver current;
 
         /// <summary>
@@ -38,33 +41,24 @@ namespace Bayat.Core
                 {
                     PrefabReferenceResolver instance = null;
 #if UNITY_EDITOR
-                    string[] instanceGuids = AssetDatabase.FindAssets($"t: {nameof(PrefabReferenceResolver)}");
+                    instance = AssetDatabase.LoadAssetAtPath<PrefabReferenceResolver>(AssetPath);
+                    string[] instanceGuids = AssetDatabase.FindAssets("t:PrefabReferenceResolver");
                     if (instanceGuids.Length > 1)
                     {
-                        Debug.LogError($"There is more than one {nameof(PrefabReferenceResolver)} in this project, but there must only be one.");
-                        Debug.Log($"Deleting other instances of {nameof(PrefabReferenceResolver)} and keeping only one instance.");
-                        Debug.LogFormat("The selected instance is: {0}", AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
-                        instance = AssetDatabase.LoadAssetAtPath<PrefabReferenceResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
-
-                        // Delete other instances
-                        for (int i = 1; i < instanceGuids.Length; i++)
-                        {
-                            string instanceGuid = instanceGuids[i];
-                            AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(instanceGuid));
-                        }
+                        Debug.LogWarning("Multiple PrefabReferenceResolver assets found. Existing reference databases will be kept.");
                     }
-                    else if (instanceGuids.Length == 0)
+                    if (instance == null && instanceGuids.Length > 0)
                     {
-                        Debug.Log($"No {nameof(PrefabReferenceResolver)} instance found, creating a new one at 'Assets/Resources/Bayat/Core'.");
+                        instance = AssetDatabase.LoadAssetAtPath<PrefabReferenceResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
+                    }
+                    // During the initial import Unity can see the file before it can load the asset.
+                    // Creating at an existing path would replace the saved reference database.
+                    if (instance == null && instanceGuids.Length == 0 && !System.IO.File.Exists(AssetPath))
+                    {
                         instance = CreateInstance<PrefabReferenceResolver>();
-                        Directory.CreateDirectory("Assets/Resources/Bayat/Core");
-                        AssetDatabase.CreateAsset(instance, $"Assets/Resources/Bayat/Core/{nameof(PrefabReferenceResolver)}.asset");
+                        System.IO.Directory.CreateDirectory("Assets/Resources/Bayat/Core");
+                        AssetDatabase.CreateAsset(instance, AssetPath);
                         AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
-                    }
-                    else
-                    {
-                        instance = AssetDatabase.LoadAssetAtPath<PrefabReferenceResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
                     }
 #else
                     instance = Resources.Load<PrefabReferenceResolver>($"Bayat/Core/{nameof(PrefabReferenceResolver)}");
@@ -645,10 +639,16 @@ namespace Bayat.Core
         }
 
         [InitializeOnLoadMethod]
+        private static void ScheduleLocationCheck()
+        {
+            // Native assets may not have been imported when scripts first load.
+            EditorApplication.delayCall += UpdateLocation;
+        }
+
         public static void UpdateLocation()
         {
             string path = AssetDatabase.GetAssetPath(PrefabReferenceResolver.Current);
-            if (path.StartsWith("Assets/Plugins/Bayat"))
+            if (!string.IsNullOrEmpty(path) && path.StartsWith("Assets/Plugins/Bayat", StringComparison.Ordinal))
             {
                 if (EditorUtility.DisplayDialog($"Updating {nameof(PrefabReferenceResolver)} Location",
                     $"The save system requires the {nameof(PrefabReferenceResolver)} to reside at Assets/Resources/Bayat/Core folder, " +

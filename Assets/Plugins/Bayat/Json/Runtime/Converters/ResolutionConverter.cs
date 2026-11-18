@@ -16,7 +16,12 @@ namespace Bayat.Json.Converters
             writer.WritePropertyName("width");
             writer.WriteValue(res.width);
             writer.WritePropertyName("refreshRate");
+#if UNITY_2022_2_OR_NEWER
+            // Match the legacy integer API's rounding and JSON representation.
+            writer.WriteValue((int)Math.Round(res.refreshRateRatio.value));
+#else
             writer.WriteValue(res.refreshRate);
+#endif
             writer.WriteEndObject();
         }
 
@@ -33,7 +38,11 @@ namespace Bayat.Json.Converters
             {
                 height = (int)obj["height"],
                 width = (int)obj["width"],
+#if UNITY_2022_2_OR_NEWER
+                refreshRateRatio = new RefreshRate { numerator = unchecked((uint)(int)obj["refreshRate"]), denominator = 1 }
+#else
                 refreshRate = (int)obj["refreshRate"]
+#endif
             };
 
             return result;

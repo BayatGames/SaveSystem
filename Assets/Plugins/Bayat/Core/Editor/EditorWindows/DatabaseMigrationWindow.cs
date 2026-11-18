@@ -202,7 +202,7 @@ namespace Bayat.Core.EditorWindows
                         }
 
                         EditorSceneManager.SetActiveScene(scene);
-                        SceneReferenceResolver referenceResolver = UnityEngine.Object.FindObjectOfType<SceneReferenceResolver>();
+                        SceneReferenceResolver referenceResolver = SceneReferenceResolver.GetReferenceResolver(scene);
                         if (referenceResolver != null)
                         {
                             this.migratedScenes.Add(new SceneMigrationStatus(scenePath, true, false));

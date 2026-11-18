@@ -1,0 +1,10 @@
+{
+    "name": "Bayat.SaveSystem.EditorTests",
+    "references": [
+        "Bayat.Core.Runtime",
+        "Bayat.Json.Runtime",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

@@ -7,6 +7,20 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityObject = UnityEngine.Object;
 
+#if UNITY_6000_3_OR_NEWER
+using ObjectId = UnityEngine.EntityId;
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<UnityEngine.EntityId>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<UnityEngine.EntityId>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
+#elif UNITY_6000_2_OR_NEWER
+using ObjectId = System.Int32;
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#else
+using ObjectId = System.Int32;
+#endif
+
 namespace Bayat.Json
 {
 
@@ -21,7 +35,7 @@ namespace Bayat.Json
 
         protected override TreeViewItem BuildRoot()
         {
-            return new TreeViewItem { id = 0, depth = -1 };
+            return new TreeViewItem { id = default(ObjectId), depth = -1 };
         }
 
         protected override IList<TreeViewItem> BuildRows(TreeViewItem root)
@@ -30,8 +44,6 @@ namespace Bayat.Json
 
             Scene scene = SceneManager.GetSceneAt(0);
 
-            // We use the GameObject instanceIDs as ids for items as we want to 
-            // select the game objects and not the transform components.
             rows.Clear();
             var gameObjectRoots = scene.GetRootGameObjects();
             foreach (var gameObject in gameObjectRoots)
@@ -84,41 +96,45 @@ namespace Bayat.Json
 
         static TreeViewItem CreateTreeViewItemForGameObject(GameObject gameObject)
         {
-            // We can use the GameObject instanceID for TreeViewItem id, as it ensured to be unique among other items in the tree.
-            // To optimize reload time we could delay fetching the transform.name until it used for rendering (prevents allocating strings 
-            // for items not rendered in large trees)
-            // We just set depth to -1 here and then call SetupDepthsFromParentsAndChildren at the end of BuildRootAndRows to set the depths.
-            return new TreeViewItem(gameObject.GetInstanceID(), -1, gameObject.name);
+            return new TreeViewItem(GetObjectId(gameObject), -1, gameObject.name);
         }
 
-        protected override IList<int> GetAncestors(int id)
+        protected override IList<ObjectId> GetAncestors(ObjectId id)
         {
             // The backend needs to provide us with this info since the item with id
             // may not be present in the rows
-            var transform = GetGameObject(id).transform;
+            var ancestors = new List<ObjectId>();
+            var gameObject = GetGameObject(id);
+            if (gameObject == null)
+            {
+                return ancestors;
+            }
 
-            List<int> ancestors = new List<int>();
+            var transform = gameObject.transform;
             while (transform.parent != null)
             {
-                ancestors.Add(transform.parent.gameObject.GetInstanceID());
+                ancestors.Add(GetObjectId(transform.parent.gameObject));
                 transform = transform.parent;
             }
 
             return ancestors;
         }
 
-        protected override IList<int> GetDescendantsThatHaveChildren(int id)
+        protected override IList<ObjectId> GetDescendantsThatHaveChildren(ObjectId id)
         {
-            Stack<Transform> stack = new Stack<Transform>();
+            var parents = new List<ObjectId>();
+            var gameObject = GetGameObject(id);
+            if (gameObject == null)
+            {
+                return parents;
+            }
 
-            var start = GetGameObject(id).transform;
-            stack.Push(start);
-
-            var parents = new List<int>();
+            var stack = new Stack<Transform>();
+            stack.Push(gameObject.transform);
             while (stack.Count > 0)
             {
                 Transform current = stack.Pop();
-                parents.Add(current.gameObject.GetInstanceID());
+                parents.Add(GetObjectId(current.gameObject));
                 for (int i = 0; i < current.childCount; ++i)
                 {
                     if (current.childCount > 0)
@@ -129,9 +145,22 @@ namespace Bayat.Json
             return parents;
         }
 
-        GameObject GetGameObject(int instanceID)
+        private static ObjectId GetObjectId(GameObject gameObject)
         {
-            return (GameObject)EditorUtility.InstanceIDToObject(instanceID);
+#if UNITY_6000_3_OR_NEWER
+            return gameObject.GetEntityId();
+#else
+            return gameObject.GetInstanceID();
+#endif
+        }
+
+        private static GameObject GetGameObject(ObjectId id)
+        {
+#if UNITY_6000_3_OR_NEWER
+            return EditorUtility.EntityIdToObject(id) as GameObject;
+#else
+            return EditorUtility.InstanceIDToObject(id) as GameObject;
+#endif
         }
 
         // Custom GUI
@@ -197,9 +226,22 @@ namespace Bayat.Json
 
         // Selection
 
-        protected override void SelectionChanged(IList<int> selectedIds)
+        public void SyncEditorSelection()
         {
+#if UNITY_6000_3_OR_NEWER
+            SetSelection(Selection.entityIds);
+#else
+            SetSelection(Selection.instanceIDs);
+#endif
+        }
+
+        protected override void SelectionChanged(IList<ObjectId> selectedIds)
+        {
+#if UNITY_6000_3_OR_NEWER
+            Selection.entityIds = selectedIds.ToArray();
+#else
             Selection.instanceIDs = selectedIds.ToArray();
+#endif
         }
 
         // Reordering
@@ -218,11 +260,16 @@ namespace Bayat.Json
             List<UnityObject> objList = new List<UnityObject>(sortedDraggedIDs.Count);
             foreach (var id in sortedDraggedIDs)
             {
-                UnityObject obj = EditorUtility.InstanceIDToObject(id);
+                var obj = GetGameObject(id);
                 if (obj != null)
                 {
                     objList.Add(obj);
                 }
+            }
+
+            if (objList.Count == 0)
+            {
+                return;
             }
 
             DragAndDrop.objectReferences = objList.ToArray();
@@ -257,7 +304,8 @@ namespace Bayat.Json
                 {
                     case DragAndDropPosition.UponItem:
                     case DragAndDropPosition.BetweenItems:
-                        Transform parent = args.parentItem != null ? GetGameObject(args.parentItem.id).transform : null;
+                        var parentObject = args.parentItem != null ? GetGameObject(args.parentItem.id) : null;
+                        Transform parent = parentObject != null ? parentObject.transform : null;
 
                         if (!IsValidReparenting(parent, transforms))
                             return DragAndDropVisualMode.None;
@@ -288,7 +336,7 @@ namespace Bayat.Json
                 }
 
                 Reload();
-                SetSelection(transforms.Select(t => t.gameObject.GetInstanceID()).ToList(), TreeViewSelectionOptions.RevealAndFrame);
+                SetSelection(transforms.Select(t => GetObjectId(t.gameObject)).ToList(), TreeViewSelectionOptions.RevealAndFrame);
             }
 
             return DragAndDropVisualMode.Move;

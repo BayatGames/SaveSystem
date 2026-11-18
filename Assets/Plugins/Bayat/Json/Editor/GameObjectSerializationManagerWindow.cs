@@ -3,6 +3,12 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
+#if UNITY_6000_3_OR_NEWER
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<UnityEngine.EntityId>;
+#elif UNITY_6000_2_OR_NEWER
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+#endif
+
 namespace Bayat.Json
 {
 
@@ -58,7 +64,7 @@ namespace Bayat.Json
         {
             if (this.treeView != null)
             {
-                this.treeView.SetSelection(Selection.instanceIDs);
+                this.treeView.SyncEditorSelection();
             }
             this.window.Repaint();
         }
@@ -110,7 +116,7 @@ namespace Bayat.Json
                 GUILayout.Label("Select a GameObject to edit", Styles.CenteredMiniLabel);
                 return;
             }
-            if (Selection.instanceIDs.Length > 1)
+            if (Selection.objects.Length > 1)
             {
                 GUILayout.Label("Select only 1 object to edit", Styles.CenteredMiniLabel);
                 return;

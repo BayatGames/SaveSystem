@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 using Bayat.Json.Serialization;
 
-using UnityEngine;
-
 namespace Bayat.Json.Converters
 {
 
     public abstract class UnityObjectConverter : ObjectJsonConverter
     {
+
+        private const string InstanceIdProperty = "instanceID";
 
         public override bool IsGenericConverter
         {
@@ -25,7 +25,7 @@ namespace Bayat.Json.Converters
 
         public override string[] GetObjectProperties()
         {
-            return new string[] { "instanceID" };
+            return new string[] { InstanceIdProperty };
         }
 
         public override List<string> GetSerializedProperties()
@@ -42,12 +42,13 @@ namespace Bayat.Json.Converters
 
         public override void WriteProperties(JsonObjectContract contract, JsonWriter writer, object value, Type objectType, JsonSerializerWriter internalWriter)
         {
-            var instance = (UnityEngine.Object)value;
-            #if UNITY_6000_0_OR_NEWER
-            writer.WriteProperty("entityID", EntityId.ToULong(instance.GetEntityId()));
-            #else
-            writer.WriteProperty("instanceID", instance.GetInstanceID());
-            #endif
+#if UNITY_6000_4_OR_NEWER
+            // This is legacy, session-local metadata. The loader resolves references using
+            // Bayat's GUIDs and JSON reference IDs. Keep the Int32 field without truncating an EntityId.
+            writer.WriteProperty(InstanceIdProperty, 0);
+#else
+            writer.WriteProperty(InstanceIdProperty, ((UnityEngine.Object)value).GetInstanceID());
+#endif
         }
 
     }

@@ -17,7 +17,14 @@ The source code of the Save System for Unity engine.
 
 ### Prerequisites
 
-- Unity 2019.4
+- The sample project in this repository is pinned to Unity **6.6** (`6000.6.7f1`).
+- The Save System package also runs on older Editors, including Unity **2019.4.40f1**. For a source import, copy `Assets/Plugins/Bayat` and keep your project's existing package manifest and settings. The bundled sample scenes, generated converters, and Asset Store publishing tools are separate from the Save System package.
+
+### Existing saves
+
+The Unity upgrade does not require a save migration. Keep your existing scene, asset, and prefab reference databases when updating or moving between Editors: their Bayat GUIDs link saves to Unity objects. If a previous upgrade emptied a reference database, restore it from a backup or version control. The legacy JSON field `instanceID` still has an integer value; on Unity 6.4 and later it is written as `0` because Unity no longer guarantees that its session-local object IDs fit that field. Save System does not use it to restore references.
+
+Use the updated package on both Editor versions when exchanging saves. For example, it can read both the old and new Unity type names for 3D physics materials.
 
 ### Download
 
@@ -40,7 +47,7 @@ docfx docs/docfx.json
 
 > We’re excited that you’re interested in contributing! Take a moment to read [`CONTRIBUTING.md`](contribute).
 
-Launch the project using the Unity 2019.4 and start contributing!
+Open the sample project in the pinned Editor and run the Edit Mode tests in the Unity Test Runner.
 
 ## License
 

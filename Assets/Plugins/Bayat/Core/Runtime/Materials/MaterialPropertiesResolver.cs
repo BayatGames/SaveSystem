@@ -15,6 +15,9 @@ namespace Bayat.Core
     public class MaterialPropertiesResolver : ScriptableObject, ISerializationCallbackReceiver
     {
 
+#if UNITY_EDITOR
+        private const string AssetPath = "Assets/Resources/Bayat/Core/MaterialPropertiesResolver.asset";
+#endif
         private static MaterialPropertiesResolver current;
 
         /// <summary>
@@ -28,33 +31,25 @@ namespace Bayat.Core
                 {
                     MaterialPropertiesResolver instance = null;
 #if UNITY_EDITOR
-                    string[] instanceGuids = AssetDatabase.FindAssets("t: MaterialPropertiesResolver");
+                    instance = AssetDatabase.LoadAssetAtPath<MaterialPropertiesResolver>(AssetPath);
+                    string[] instanceGuids = AssetDatabase.FindAssets("t:MaterialPropertiesResolver");
                     if (instanceGuids.Length > 1)
                     {
-                        Debug.LogError("There is more than one MaterialPropertiesResolver in this project, but there must only be one.");
-                        Debug.Log("Deleting other instances of MaterialPropertiesResolver and keeping only one instance.");
-                        Debug.LogFormat("The selected instance is: {0}", AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
-                        instance = AssetDatabase.LoadAssetAtPath<MaterialPropertiesResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
-
-                        // Delete other instances
-                        for (int i = 1; i < instanceGuids.Length; i++)
-                        {
-                            string instanceGuid = instanceGuids[i];
-                            AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(instanceGuid));
-                        }
+                        Debug.LogWarning("Multiple MaterialPropertiesResolver assets found. Existing reference databases will be kept.");
                     }
-                    else if (instanceGuids.Length == 0)
+                    if (instance == null && instanceGuids.Length > 0)
+                    {
+                        instance = AssetDatabase.LoadAssetAtPath<MaterialPropertiesResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
+                    }
+                    // During the initial import Unity can see the file before it can load the asset.
+                    // Creating at an existing path would replace the saved reference database.
+                    if (instance == null && instanceGuids.Length == 0 && !System.IO.File.Exists(AssetPath))
                     {
                         instance = ScriptableObject.CreateInstance<MaterialPropertiesResolver>();
                         instance.CollectMaterials();
                         System.IO.Directory.CreateDirectory("Assets/Resources/Bayat/Core");
-                        AssetDatabase.CreateAsset(instance, "Assets/Resources/Bayat/Core/MaterialPropertiesResolver.asset");
+                        AssetDatabase.CreateAsset(instance, AssetPath);
                         AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
-                    }
-                    else
-                    {
-                        instance = AssetDatabase.LoadAssetAtPath<MaterialPropertiesResolver>(AssetDatabase.GUIDToAssetPath(instanceGuids[0]));
                     }
 #else
                     instance = Resources.Load<MaterialPropertiesResolver>("Bayat/Core/MaterialPropertiesResolver");
@@ -207,7 +202,11 @@ namespace Bayat.Core
                     for (int j = 0; j < properties.Length; j++)
                     {
                         MaterialProperty property = properties[j];
+#if UNITY_6000_1_OR_NEWER
                         RuntimeMaterialProperty runtimeProperty = new RuntimeMaterialProperty(property.name, property.propertyType);
+#else
+                        RuntimeMaterialProperty runtimeProperty = new RuntimeMaterialProperty(property.name, property.type);
+#endif
                         int index = runtimeProperties.Properties.FindIndex(theProperty => theProperty.Name == property.name);
                         if (index == -1)
                         {

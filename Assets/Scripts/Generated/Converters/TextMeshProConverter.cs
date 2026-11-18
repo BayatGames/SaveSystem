@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using Bayat.Json.Serialization;
 using TMPro;
 using UnityEngine;
+#if UNITY_6000_0_OR_NEWER
 using UnityEngine.TextCore;
+#endif
 
 namespace Bayat.Json.Converters
 {
@@ -38,7 +40,7 @@ namespace Bayat.Json.Converters
                 internalWriter.SerializeProperty(writer, "fontSharedMaterial", instance.fontSharedMaterial);
                 // internalWriter.SerializeProperty(writer, "fontSharedMaterials", instance.fontSharedMaterials);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Handle cases where the TMPro text component maybe disabled or have no textInfo available in UGUI
                 Debug.LogWarning("The TextMeshPro component is disabled or has no textInfo available, so there are no Shared materials accessible for saving, if this is intended you can ignore this.", instance);
@@ -70,12 +72,21 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("lineSpacingAdjustment", instance.lineSpacingAdjustment);
             writer.WriteProperty("paragraphSpacing", instance.paragraphSpacing);
             writer.WriteProperty("characterWidthAdjustment", instance.characterWidthAdjustment);
+#if UNITY_6000_0_OR_NEWER
+            writer.WriteProperty("enableWordWrapping", instance.textWrappingMode == TextWrappingModes.Normal
+                || instance.textWrappingMode == TextWrappingModes.PreserveWhitespace);
+#else
             writer.WriteProperty("enableWordWrapping", instance.enableWordWrapping);
+#endif
             writer.WriteProperty("wordWrappingRatios", instance.wordWrappingRatios);
             internalWriter.SerializeProperty(writer, "overflowMode", instance.overflowMode);
             internalWriter.SerializeProperty(writer, "linkedTextComponent", instance.linkedTextComponent);
             //writer.WriteProperty("isLinkedTextComponent", instance.isLinkedTextComponent);
+#if UNITY_6000_0_OR_NEWER
+            writer.WriteProperty("enableKerning", instance.fontFeatures.Contains(OTL_FeatureTag.kern));
+#else
             writer.WriteProperty("enableKerning", instance.enableKerning);
+#endif
             writer.WriteProperty("extraPadding", instance.extraPadding);
             writer.WriteProperty("richText", instance.richText);
             writer.WriteProperty("parseCtrlCharacters", instance.parseCtrlCharacters);
@@ -102,8 +113,10 @@ namespace Bayat.Json.Converters
             writer.WriteProperty("maskable", instance.maskable);
             writer.WriteProperty("isMaskingGraphic", instance.isMaskingGraphic);
             writer.WriteProperty("raycastTarget", instance.raycastTarget);
+#if UNITY_6000_0_OR_NEWER
             internalWriter.SerializeProperty(writer, "textWrappingMode", instance.textWrappingMode);
             internalWriter.SerializeProperty(writer, "fontFeatures", instance.fontFeatures);
+#endif
             //internalWriter.SerializeProperty(writer, "material", instance.material);
         }
 
@@ -222,7 +235,11 @@ namespace Bayat.Json.Converters
                     instance.characterWidthAdjustment = reader.ReadProperty<System.Single>();
                     break;
                 case "enableWordWrapping":
+#if UNITY_6000_0_OR_NEWER
+                    instance.textWrappingMode = reader.ReadProperty<bool>() ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;
+#else
                     instance.enableWordWrapping = reader.ReadProperty<System.Boolean>();
+#endif
                     break;
                 case "wordWrappingRatios":
                     instance.wordWrappingRatios = reader.ReadProperty<System.Single>();
@@ -237,7 +254,11 @@ namespace Bayat.Json.Converters
                     //instance.isLinkedTextComponent = reader.ReadProperty<System.Boolean>();
                     break;
                 case "enableKerning":
+#if UNITY_6000_0_OR_NEWER
+                    SetKerning(instance, reader.ReadProperty<bool>());
+#else
                     instance.enableKerning = reader.ReadProperty<System.Boolean>();
+#endif
                     break;
                 case "extraPadding":
                     instance.extraPadding = reader.ReadProperty<System.Boolean>();
@@ -320,12 +341,20 @@ namespace Bayat.Json.Converters
                 case "raycastTarget":
                     instance.raycastTarget = reader.ReadProperty<System.Boolean>();
                     break;
+#if UNITY_6000_0_OR_NEWER
                 case "textWrappingMode":
                     instance.textWrappingMode = internalReader.DeserializeProperty<TextWrappingModes>(reader);
                     break;
                 case "fontFeatures":
                     instance.fontFeatures = internalReader.DeserializeProperty<List<OTL_FeatureTag>>(reader);
                     break;
+#else
+                // Older TMP versions use the boolean fields and do not support these richer settings.
+                case "textWrappingMode":
+                case "fontFeatures":
+                    reader.Skip();
+                    break;
+#endif
                 //case "material":
                 //    instance.material = internalReader.DeserializeProperty<UnityEngine.Material>(reader);
                 //    break;
@@ -338,6 +367,27 @@ namespace Bayat.Json.Converters
             }
             return instance;
         }
+
+#if UNITY_6000_0_OR_NEWER
+        private static void SetKerning(TMP_Text instance, bool enabled)
+        {
+            if (instance.fontFeatures.Contains(OTL_FeatureTag.kern) == enabled)
+            {
+                return;
+            }
+
+            var features = new List<OTL_FeatureTag>(instance.fontFeatures);
+            if (enabled)
+            {
+                features.Add(OTL_FeatureTag.kern);
+            }
+            else
+            {
+                features.Remove(OTL_FeatureTag.kern);
+            }
+            instance.fontFeatures = features;
+        }
+#endif
 
     }
 

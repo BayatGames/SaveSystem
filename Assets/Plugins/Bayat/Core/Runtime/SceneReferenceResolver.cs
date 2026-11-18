@@ -38,7 +38,7 @@ namespace Bayat.Core
             {
                 if (current == null)
                 {
-                    SceneReferenceResolver[] instances = FindObjectsOfType<SceneReferenceResolver>();
+                    SceneReferenceResolver[] instances = FindActiveResolvers();
 #if !UNITY_EDITOR
                     if (instances.Length == 0)
                     {
@@ -746,7 +746,7 @@ namespace Bayat.Core
             }
             else
             {
-                return Array.Find(FindObjectsOfType<SceneReferenceResolver>(), x =>
+                return Array.Find(FindActiveResolvers(), x =>
                 {
                     return x.gameObject.scene == scene;
                 });
@@ -816,7 +816,7 @@ namespace Bayat.Core
             else
             {
                 UnityObject unityObject;
-                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                foreach (var referenceResolver in FindActiveResolvers())
                 {
                     unityObject = referenceResolver.Get(guid);
                     if (unityObject != null)
@@ -851,7 +851,7 @@ namespace Bayat.Core
             else
             {
                 string guid;
-                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                foreach (var referenceResolver in FindActiveResolvers())
                 {
                     guid = referenceResolver.Get(unityObject);
                     if (!string.IsNullOrEmpty(guid))
@@ -912,7 +912,7 @@ namespace Bayat.Core
             else
             {
                 List<UnityObject> unityObjects = new List<UnityObject>();
-                foreach (var referenceResolver in FindObjectsOfType<SceneReferenceResolver>())
+                foreach (var referenceResolver in FindActiveResolvers())
                 {
                     foreach (var reference in referenceResolver.GuidToReference)
                     {
@@ -924,6 +924,18 @@ namespace Bayat.Core
                 }
                 return unityObjects;
             }
+        }
+
+        private static SceneReferenceResolver[] FindActiveResolvers()
+        {
+#if UNITY_6000_4_OR_NEWER
+            return FindObjectsByType<SceneReferenceResolver>();
+#elif UNITY_2022_2_OR_NEWER
+            // Keep the same search order as FindObjectsOfType on older editors.
+            return FindObjectsByType<SceneReferenceResolver>(FindObjectsSortMode.InstanceID);
+#else
+            return FindObjectsOfType<SceneReferenceResolver>();
+#endif
         }
 
 #if UNITY_EDITOR

@@ -47,6 +47,23 @@ namespace Bayat.Json.Serialization
             string assemblyName = typeNameKey.AssemblyName;
             string typeName = typeNameKey.TypeName;
 
+            // Unity 6 renamed the 3D physics material and its combine enum. Existing
+            // saves can contain either spelling in $type metadata.
+            if (typeName == "UnityEngine.PhysicMaterial" || typeName == "UnityEngine.PhysicsMaterial"
+                || typeName == "UnityEngine.PhysicMaterialCombine" || typeName == "UnityEngine.PhysicsMaterialCombine")
+            {
+                string simpleAssemblyName = assemblyName == null ? null : new AssemblyName(assemblyName).Name;
+                if (simpleAssemblyName == null || simpleAssemblyName == "UnityEngine.PhysicsModule" || simpleAssemblyName == "UnityEngine")
+                {
+                    bool isCombine = typeName.EndsWith("Combine", StringComparison.Ordinal);
+#if UNITY_6000_0_OR_NEWER
+                    return isCombine ? typeof(UnityEngine.PhysicsMaterialCombine) : typeof(UnityEngine.PhysicsMaterial);
+#else
+                    return isCombine ? typeof(UnityEngine.PhysicMaterialCombine) : typeof(UnityEngine.PhysicMaterial);
+#endif
+                }
+            }
+
             if (assemblyName != null)
             {
                 Assembly assembly;

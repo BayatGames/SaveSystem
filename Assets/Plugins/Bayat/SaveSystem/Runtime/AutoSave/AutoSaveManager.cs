@@ -29,11 +29,13 @@ namespace Bayat.SaveSystem
             {
                 if (current == null)
                 {
-                    #if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
+                    AutoSaveManager[] instances = FindObjectsByType<AutoSaveManager>();
+#elif UNITY_6000_0_OR_NEWER
                     AutoSaveManager[] instances = FindObjectsByType<AutoSaveManager>(FindObjectsSortMode.None);
-                    #else
+#else
                     AutoSaveManager[] instances = FindObjectsOfType<AutoSaveManager>();
-                    #endif
+#endif
 #if UNITY_EDITOR
                     if (instances.Length == 0)
                     {
@@ -605,11 +607,13 @@ namespace Bayat.SaveSystem
                 this.autoSaves = new List<AutoSave>();
             }
 
-            #if UNITY_6000_0_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
+            var fetchedAutoSaves = FindObjectsByType<AutoSave>();
+#elif UNITY_6000_0_OR_NEWER
             var fetchedAutoSaves = FindObjectsByType<AutoSave>(FindObjectsSortMode.None);
-            #else
+#else
             var fetchedAutoSaves = FindObjectsOfType<AutoSave>();
-            #endif
+#endif
             for (int i = 0; i < fetchedAutoSaves.Length; i++)
             {
                 var fetchedAutoSave = fetchedAutoSaves[i];
